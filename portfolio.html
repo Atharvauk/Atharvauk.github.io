@@ -147,14 +147,11 @@ h1.name .l2{color:var(--cyan)}
 .facts dt{font:500 var(--t-xs)/1.9 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding-right:24px}
 .facts dd{font-size:var(--t-md);color:var(--fg)}
 .idcard{padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:8px;display:grid;gap:14px}
-.scan{position:relative;aspect-ratio:4/4.6;overflow:hidden;border-radius:4px;background:
-  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px,
-  radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--cyan) 22%,transparent),transparent 65%),var(--panel-2)}
-.scan img{position:absolute;left:50%;bottom:0;width:96%;height:auto;transform:translateX(-50%)}
-.scan .line{position:absolute;left:0;right:0;height:2px;background:var(--cyan);box-shadow:0 0 18px 4px var(--glow);top:10%;animation:sweep 4.5s ease-in-out infinite alternate}
-@keyframes sweep{to{top:92%}}
-.scan .face{--c:var(--ok);--s:12px;position:absolute;left:31%;top:14%;width:39%;height:40%}
-.scan .face b{position:absolute;top:-20px;left:-2px;font:500 10.5px/1 var(--f-mono);color:#03140d;background:var(--ok);padding:4px 5px;border-radius:2px;white-space:nowrap}
+.shot{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:4px;background:#e9dcc4}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.idcard:hover .shot img{transform:scale(1.03)}
+.shot .hand{position:absolute;right:7%;top:30%;transform:rotate(-5deg);font:600 clamp(1.15rem,2.2vw,1.5rem)/1.15 "Caveat","Segoe Print","Bradley Hand",cursive;color:#3b3024;text-align:right}
+.shot .hand i{font-style:normal;color:#b5541c}
 .readout{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font:400 12px/1.5 var(--f-mono)}
 .readout span:nth-child(odd){color:var(--faint)}
 .readout span:nth-child(even){color:var(--fg)}
@@ -433,10 +430,9 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
         </dl>
       </div>
       <figure class="idcard" style="margin:0">
-        <div class="scan">
-          <img src="assets/photo.webp" alt="Atharva Kalase" width="640" height="725" loading="lazy">
-          <div class="face bracket"><b>face 0.99 · verified</b></div>
-          <div class="line" aria-hidden="true"></div>
+        <div class="shot">
+          <img src="assets/casual-wide.webp" alt="Atharva Kalase in a black hoodie against a warm wall" width="800" height="600" loading="lazy">
+          <p class="hand" aria-hidden="true">from Pune,<br>via <i>ISRO</i>,<br>now Belfast.</p>
         </div>
         <figcaption class="readout">
           <span>SUBJECT</span><span>A. U. KALASE</span>
