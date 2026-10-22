@@ -3,7 +3,7 @@
 <meta name="description" content="Atharva Uday Kalase: data scientist and MSc Data Science & AI candidate at Queen's University Belfast. Computer vision, remote sensing and vision-language models.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Chakra+Petch:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a ground-station console. Left-aligned readouts over a lat/long grid; every key panel framed by
    computer-vision corner brackets; telemetry and labels in mono. Dark-first, light theme mirrors it. */
@@ -66,7 +66,7 @@ p{margin:0}
 .links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}
 .links::-webkit-scrollbar{display:none}
 .links a:first-child{margin-left:auto}
-.links a{font:500 12.5px var(--f-mono);color:var(--muted);text-decoration:none;padding:7px 10px;border-radius:4px;white-space:nowrap;transition:color .2s,background .2s}
+.links a{font:500 12px var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-decoration:none;padding:7px 10px;border-radius:4px;white-space:nowrap;transition:color .2s,background .2s}
 .links a:hover{color:var(--fg);background:var(--panel-2)}
 .links a.on{color:var(--cyan)}
 .iconbtn{flex:none;display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg);cursor:pointer;transition:border-color .2s}
@@ -107,25 +107,20 @@ h1.name .l2{color:var(--cyan)}
 @media (max-width:900px){.hero .wrap{grid-template-columns:1fr;padding-block:40px 48px}.stage-col{order:-1}}
 @media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-.stage-col{display:grid;justify-items:center;gap:16px;min-width:0}
-.stage{position:relative;width:min(460px,100%);aspect-ratio:1;max-width:100%}
-.stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.stage .back{z-index:1}.stage .front{z-index:3}
-.disc{position:absolute;inset:13%;border-radius:50%;overflow:hidden;z-index:2;background:radial-gradient(circle at 50% 38%,#1d2d55,#070b14 72%);box-shadow:0 0 0 1px var(--line),0 30px 80px -20px var(--glow)}
-.disc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s ease,transform .7s ease}
-.disc img.photo{object-fit:cover;object-position:50% 0;top:9%;height:100%;filter:saturate(1.05)}
-.disc .photo-bg{position:absolute;inset:0;background:
-  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/22px 22px,
-  radial-gradient(circle at 50% 35%,#203765,#08101f 70%);transition:opacity .7s}
-.stage[data-mode="avatar"] .photo,.stage[data-mode="avatar"] .photo-bg{opacity:0;transform:scale(1.04)}
-.stage[data-mode="photo"] .avatar{opacity:0;transform:scale(.96)}
-.detect{--c:var(--amber);--s:16px;position:absolute;z-index:4;left:31%;top:24%;width:38%;height:46%;transition:all .5s cubic-bezier(.2,.8,.2,1);pointer-events:none}
-.detect .tag{position:absolute;left:-2px;top:-24px;font:500 11px/1 var(--f-mono);background:var(--amber);color:#1b1100;padding:5px 6px;border-radius:2px;white-space:nowrap}
-.stage:hover .detect{left:33%;top:26%;width:34%;height:42%}
-.mode{display:inline-flex;border:1px solid var(--line);border-radius:6px;padding:3px;background:var(--panel);gap:3px}
-.mode button{font:500 12px var(--f-mono);letter-spacing:.06em;color:var(--muted);background:none;border:0;border-radius:4px;padding:8px 14px;cursor:pointer}
-.mode button[aria-pressed="true"]{background:var(--panel-2);color:var(--cyan);box-shadow:inset 0 0 0 1px var(--line)}
-.stage-note{font:400 11px var(--f-mono);color:var(--faint);text-align:center}
+.stage-col{display:grid;justify-items:center;min-width:0;padding-block:18px}
+.snap{--paper:#fbf8f2;--ink:#2b2a33;--hand:"Caveat","Segoe Print","Bradley Hand",cursive;position:relative;margin:0;width:min(360px,84%);background:var(--paper);padding:14px 14px 0;border-radius:3px;
+  box-shadow:0 2px 0 rgba(0,0,0,.04),0 36px 60px -26px var(--shade),0 14px 26px -14px var(--shade);transform:rotate(-3.5deg);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.snap:hover{transform:rotate(-1deg) translateY(-6px)}
+.snap::before{content:"";position:absolute;z-index:2;top:-13px;left:50%;width:112px;height:28px;transform:translateX(-50%) rotate(2deg);background:rgba(255,231,176,.78);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.snap .pic{position:relative;aspect-ratio:1/1.08;overflow:hidden;border-radius:2px;
+  background:radial-gradient(circle at 80% 18%,rgba(255,255,255,.6),transparent 26%),linear-gradient(168deg,#ffd9a0 0%,#f6a98b 50%,#7fc4cf 100%)}
+.snap img{position:absolute;left:50%;bottom:0;width:98%;height:auto;transform:translateX(-50%);filter:saturate(1.06) contrast(1.02)}
+.snap figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 6px 16px;font-family:var(--hand);color:var(--ink)}
+.snap figcaption b{font-size:1.9rem;font-weight:700;line-height:1}
+.snap figcaption span{font-size:1.15rem;opacity:.65;white-space:nowrap}
+.note{position:absolute;z-index:3;right:-12%;bottom:84px;width:138px;padding:12px 14px;transform:rotate(7deg);background:#ffe58a;color:#3d3200;font:600 1.15rem/1.15 var(--hand);box-shadow:0 12px 22px -10px var(--shade)}
+.note small{display:block;font-size:.85rem;opacity:.7;margin-bottom:2px}
+@media (max-width:560px){.note{right:-6px;bottom:auto;top:52%;width:112px;font-size:1rem}.snap figcaption b{font-size:1.55rem}.snap figcaption span{font-size:1rem}}
 
 /* ---------- section scaffolding ---------- */
 .block{padding-block:clamp(64px,9vw,112px);border-bottom:1px solid var(--line);position:relative}
@@ -408,20 +403,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
     </div>
 
     <div class="stage-col">
-      <div class="stage" id="stage" data-mode="avatar">
-        <canvas class="back" id="orbBack" aria-hidden="true"></canvas>
-        <div class="disc">
-          <div class="photo-bg"></div>
-          <img class="avatar" src="assets/avatar.webp" alt="Illustrated avatar of Atharva wearing smart glasses and a headset over a circuit-board background" width="880" height="880">
-          <img class="photo" src="assets/photo.webp" alt="Photo of Atharva Kalase in a navy blazer" width="640" height="725">
-        </div>
-        <canvas class="front" id="orbFront" aria-hidden="true"></canvas>
-        <div class="detect bracket" aria-hidden="true"><span class="tag" id="detTag">atharva · data_scientist 0.98</span></div>
-      </div>
-      <div class="mode" role="group" aria-label="Portrait style">
-        <button type="button" id="mAvatar" aria-pressed="true">Techie avatar</button>
-        <button type="button" id="mPhoto" aria-pressed="false">Real photo</button>
-      </div>
+      <figure class="snap">
+        <div class="pic"><img src="assets/photo.webp" alt="Photo of Atharva Kalase smiling, in a navy blazer" width="640" height="725"></div>
+        <figcaption><b>Hi, I'm Atharva</b><span>Belfast, 2026</span></figcaption>
+        <div class="note"><small>currently</small>MSc Data Science &amp; AI at QUB</div>
+      </figure>
     </div>
   </div>
 </section>
@@ -924,31 +910,6 @@ addLoop(track, (t) => {
   ctx.restore();
 });
 
-/* ---------- hero: orbits around the portrait ---------- */
-const oB = $('#orbBack'), oF = $('#orbFront');
-const orbits = [ { r: .47, inc: 1.2, tilt: -.38, sp: .32, ph: 0, c: 'cyan' }, { r: .44, inc: 1.28, tilt: .62, sp: -.22, ph: 2.4, c: 'amber' } ];
-const orbLoop = addLoop($('#stage'), (t) => {
-  const b = fit(oB), f = fit(oF); const S = b.w, c = S / 2;
-  b.ctx.clearRect(0, 0, S, S); f.ctx.clearRect(0, 0, S, S);
-  const pt = (o, th) => { const x = Math.cos(th), y0 = Math.sin(th) * Math.cos(o.inc), z = Math.sin(th) * Math.sin(o.inc);
-    return [c + (x * Math.cos(o.tilt) - y0 * Math.sin(o.tilt)) * o.r * S, c + (x * Math.sin(o.tilt) + y0 * Math.cos(o.tilt)) * o.r * S, z]; };
-  for (const o of orbits) {
-    const col = T[o.c];
-    for (let i = 0; i < 120; i++) {
-      const a = pt(o, i / 120 * Math.PI * 2), z = pt(o, (i + .5) / 120 * Math.PI * 2)[2], bb = pt(o, (i + 1) / 120 * Math.PI * 2);
-      const g = z > 0 ? f.ctx : b.ctx; g.strokeStyle = hexA(col, z > 0 ? .55 : .25); g.lineWidth = 1.2;
-      g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(bb[0], bb[1]); g.stroke();
-    }
-    const th = o.ph + t * o.sp; const [sx, sy, sz] = pt(o, th); const g = sz > 0 ? f.ctx : b.ctx;
-    for (let k = 1; k < 26; k++) { const p = pt(o, th - Math.sign(o.sp) * k * .03); g.fillStyle = hexA(col, (1 - k / 26) * .7); g.fillRect(p[0] - 1.5, p[1] - 1.5, 3, 3); }
-    g.save(); g.translate(sx, sy); g.rotate(o.tilt);
-    g.fillStyle = col; g.shadowColor = col; g.shadowBlur = 14; g.fillRect(-4, -4, 8, 8); g.shadowBlur = 0;
-    g.fillStyle = hexA(col, .8); g.fillRect(-15, -2.5, 9, 5); g.fillRect(6, -2.5, 9, 5); g.restore();
-  }
-});
-const stage = $('#stage');
-function setMode(m){ stage.dataset.mode = m; $('#mAvatar').setAttribute('aria-pressed', m === 'avatar'); $('#mPhoto').setAttribute('aria-pressed', m === 'photo'); $('#detTag').textContent = m === 'avatar' ? 'atharva · data_scientist 0.98' : 'atharva · person 0.99'; }
-$('#mAvatar').onclick = () => setMode('avatar'); $('#mPhoto').onclick = () => setMode('photo');
 
 /* ---------- project tabs ---------- */
 const tabs = $$('.tab');
