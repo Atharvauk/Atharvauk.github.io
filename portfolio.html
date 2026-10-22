@@ -114,7 +114,7 @@ h1.name .l2{color:var(--cyan)}
 .snap::before{content:"";position:absolute;z-index:2;top:-13px;left:50%;width:112px;height:28px;transform:translateX(-50%) rotate(2deg);background:rgba(255,231,176,.78);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .snap .pic{position:relative;aspect-ratio:1/1.08;overflow:hidden;border-radius:2px;
   background:radial-gradient(circle at 80% 18%,rgba(255,255,255,.6),transparent 26%),linear-gradient(168deg,#ffd9a0 0%,#f6a98b 50%,#7fc4cf 100%)}
-.snap img{position:absolute;left:50%;bottom:0;width:98%;height:auto;transform:translateX(-50%);filter:saturate(1.06) contrast(1.02)}
+.snap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
 .snap figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 6px 16px;font-family:var(--hand);color:var(--ink)}
 .snap figcaption b{font-size:1.9rem;font-weight:700;line-height:1}
 .snap figcaption span{font-size:1.15rem;opacity:.65;white-space:nowrap}
@@ -404,7 +404,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
 
     <div class="stage-col">
       <figure class="snap">
-        <div class="pic"><img src="assets/photo.webp" alt="Photo of Atharva Kalase smiling, in a navy blazer" width="640" height="725"></div>
+        <div class="pic"><img src="assets/casual.webp" alt="Atharva Kalase in a black hoodie, smiling" width="720" height="777"></div>
         <figcaption><b>Hi, I'm Atharva</b><span>Belfast, 2026</span></figcaption>
         <div class="note"><small>currently</small>MSc Data Science &amp; AI at QUB</div>
       </figure>
