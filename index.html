@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="assets/avatar.webp">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Atharva Kalase</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Atharva Uday Kalase: data scientist and MSc Data Science & AI candidate at Queen's University Belfast. Computer vision, remote sensing and vision-language models.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a ground-station console. Left-aligned readouts over a lat/long grid; every key panel framed by
+   computer-vision corner brackets; telemetry and labels in mono. Dark-first, light theme mirrors it. */
+:root{
+  --bg:#070b14; --bg-2:#0a1120; --panel:#0d1527; --panel-2:#121d35; --line:#1c2945; --fg:#e8eef8; --muted:#94a1b9; --faint:#5d6b86;
+  --cyan:#46d4ff; --amber:#ffb547; --ok:#3ee0a1; --alert:#ff5d6c; --on-accent:#03121b;
+  --glow:rgba(70,212,255,.22); --grid:rgba(70,212,255,.075); --shade:rgba(3,6,12,.55);
+  --f-display:"Chakra Petch","Bahnschrift","Segoe UI",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+  --t-xs:.75rem; --t-sm:.875rem; --t-md:1rem; --t-lg:1.125rem; --t-xl:1.375rem; --t-2xl:1.75rem;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#eef2f8; --bg-2:#e4eaf3; --panel:#ffffff; --panel-2:#f3f6fb; --line:#cdd7e6; --fg:#0c1528; --muted:#4a5872; --faint:#7d8aa3;
+    --cyan:#0a75a8; --amber:#a35a00; --ok:#0d875c; --alert:#c42f3e; --on-accent:#ffffff;
+    --glow:rgba(10,117,168,.16); --grid:rgba(10,117,168,.09); --shade:rgba(12,21,40,.2); color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#eef2f8; --bg-2:#e4eaf3; --panel:#ffffff; --panel-2:#f3f6fb; --line:#cdd7e6; --fg:#0c1528; --muted:#4a5872; --faint:#7d8aa3;
+  --cyan:#0a75a8; --amber:#a35a00; --ok:#0d875c; --alert:#c42f3e; --on-accent:#ffffff;
+  --glow:rgba(10,117,168,.16); --grid:rgba(10,117,168,.09); --shade:rgba(12,21,40,.2); color-scheme:light;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--fg);font:400 var(--t-md)/1.65 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:3px}
+h1,h2,h3,h4{font-family:var(--f-display);text-wrap:balance;margin:0}
+p{margin:0}
+.wrap{max-width:1220px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mono{font-family:var(--f-mono)}
+.label{font:500 var(--t-xs)/1.4 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* corner-bracket frame: the detection box motif */
+.bracket{--c:var(--cyan);--s:14px;--w:2px;position:relative;
+  background:
+   linear-gradient(var(--c),var(--c)) top left/var(--s) var(--w) no-repeat,
+   linear-gradient(var(--c),var(--c)) top left/var(--w) var(--s) no-repeat,
+   linear-gradient(var(--c),var(--c)) top right/var(--s) var(--w) no-repeat,
+   linear-gradient(var(--c),var(--c)) top right/var(--w) var(--s) no-repeat,
+   linear-gradient(var(--c),var(--c)) bottom left/var(--s) var(--w) no-repeat,
+   linear-gradient(var(--c),var(--c)) bottom left/var(--w) var(--s) no-repeat,
+   linear-gradient(var(--c),var(--c)) bottom right/var(--s) var(--w) no-repeat,
+   linear-gradient(var(--c),var(--c)) bottom right/var(--w) var(--s) no-repeat}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:16px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand .mark{--s:7px;display:grid;place-items:center;width:34px;height:34px;font:700 14px var(--f-display);color:var(--cyan);letter-spacing:.04em}
+.brand .nm{font:500 var(--t-sm) var(--f-mono);color:var(--fg)}
+.brand .nm span{color:var(--faint)}
+.links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}
+.links::-webkit-scrollbar{display:none}
+.links a:first-child{margin-left:auto}
+.links a{font:500 12.5px var(--f-mono);color:var(--muted);text-decoration:none;padding:7px 10px;border-radius:4px;white-space:nowrap;transition:color .2s,background .2s}
+.links a:hover{color:var(--fg);background:var(--panel-2)}
+.links a.on{color:var(--cyan)}
+.iconbtn{flex:none;display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg);cursor:pointer;transition:border-color .2s}
+.iconbtn:hover{border-color:var(--cyan)}
+.iconbtn svg{width:18px;height:18px}
+.progress{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--cyan);transform-origin:left;transform:scaleX(0);box-shadow:0 0 10px var(--glow)}
+@media (max-width:640px){.brand .nm{display:none}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);background:radial-gradient(1200px 500px at 80% 30%,var(--glow),transparent 60%),var(--bg)}
+.hero canvas.track{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:40px;align-items:center;padding-block:64px 56px}
+.hero .intro{display:grid;gap:22px;min-width:0}
+.eyebrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.live{display:inline-flex;align-items:center;gap:8px;font:500 var(--t-xs) var(--f-mono);letter-spacing:.08em;color:var(--ok);text-transform:uppercase}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 var(--ok);animation:ping 2s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 70%,transparent)}80%,100%{box-shadow:0 0 0 10px transparent}}
+h1.name{font-weight:700;font-size:clamp(2.7rem,6.6vw,5.6rem);line-height:.92;letter-spacing:-.005em;text-transform:uppercase}
+h1.name span{display:block}
+h1.name .l2{color:var(--cyan)}
+.role{font:500 clamp(1.05rem,1.8vw,1.35rem)/1.45 var(--f-body);color:var(--fg);min-height:2.9em}
+.role .typed{color:var(--amber);font-family:var(--f-mono);font-weight:500;font-size:.92em}
+.caret{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:var(--amber);margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.lede{color:var(--muted);max-width:58ch;font-size:var(--t-lg)}
+.ctas{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:10px;font:600 var(--t-sm)/1 var(--f-mono);letter-spacing:.04em;padding:14px 18px;border-radius:6px;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .2s,border-color .2s,background .2s}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:var(--cyan);color:var(--on-accent);box-shadow:0 8px 28px -10px var(--cyan)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 14px 34px -10px var(--cyan)}
+.btn.ghost{border-color:var(--line);color:var(--fg);background:color-mix(in srgb,var(--panel) 70%,transparent)}
+.btn.ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:6px}
+.stat{background:color-mix(in srgb,var(--panel) 88%,transparent);padding:14px 14px 12px;display:grid;gap:4px;min-width:0}
+.stat b{font:600 clamp(1.4rem,2.4vw,1.9rem)/1 var(--f-display);color:var(--fg);font-variant-numeric:tabular-nums}
+.stat b em{font-style:normal;color:var(--cyan)}
+.stat span{font:400 11.5px/1.35 var(--f-mono);color:var(--muted)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr;padding-block:40px 48px}.stage-col{order:-1}}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.stage-col{display:grid;justify-items:center;gap:16px;min-width:0}
+.stage{position:relative;width:min(460px,100%);aspect-ratio:1;max-width:100%}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.stage .back{z-index:1}.stage .front{z-index:3}
+.disc{position:absolute;inset:13%;border-radius:50%;overflow:hidden;z-index:2;background:radial-gradient(circle at 50% 38%,#1d2d55,#070b14 72%);box-shadow:0 0 0 1px var(--line),0 30px 80px -20px var(--glow)}
+.disc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .7s ease,transform .7s ease}
+.disc img.photo{object-fit:cover;object-position:50% 0;top:9%;height:100%;filter:saturate(1.05)}
+.disc .photo-bg{position:absolute;inset:0;background:
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/22px 22px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/22px 22px,
+  radial-gradient(circle at 50% 35%,#203765,#08101f 70%);transition:opacity .7s}
+.stage[data-mode="avatar"] .photo,.stage[data-mode="avatar"] .photo-bg{opacity:0;transform:scale(1.04)}
+.stage[data-mode="photo"] .avatar{opacity:0;transform:scale(.96)}
+.detect{--c:var(--amber);--s:16px;position:absolute;z-index:4;left:31%;top:24%;width:38%;height:46%;transition:all .5s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.detect .tag{position:absolute;left:-2px;top:-24px;font:500 11px/1 var(--f-mono);background:var(--amber);color:#1b1100;padding:5px 6px;border-radius:2px;white-space:nowrap}
+.stage:hover .detect{left:33%;top:26%;width:34%;height:42%}
+.mode{display:inline-flex;border:1px solid var(--line);border-radius:6px;padding:3px;background:var(--panel);gap:3px}
+.mode button{font:500 12px var(--f-mono);letter-spacing:.06em;color:var(--muted);background:none;border:0;border-radius:4px;padding:8px 14px;cursor:pointer}
+.mode button[aria-pressed="true"]{background:var(--panel-2);color:var(--cyan);box-shadow:inset 0 0 0 1px var(--line)}
+.stage-note{font:400 11px var(--f-mono);color:var(--faint);text-align:center}
+
+/* ---------- section scaffolding ---------- */
+.block{padding-block:clamp(64px,9vw,112px);border-bottom:1px solid var(--line);position:relative}
+.block.alt{background:var(--bg-2)}
+.sec-head{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px 32px;margin-bottom:44px;align-items:start}
+.sec-head .meta{display:grid;gap:6px;padding-top:10px;border-top:2px solid var(--cyan)}
+.sec-head .meta .label{color:var(--cyan)}
+.sec-head .meta .sub{font:400 var(--t-xs) var(--f-mono);color:var(--faint)}
+.sec-head h2{font-weight:600;font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.05;letter-spacing:-.01em}
+.sec-head p{color:var(--muted);max-width:62ch;margin-top:14px;font-size:var(--t-lg)}
+@media (max-width:760px){.sec-head{grid-template-columns:1fr}.sec-head .meta{max-width:220px}}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 12px/1 var(--f-mono);padding:7px 9px;border-radius:4px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.chip.am{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,var(--line))}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:48px;align-items:start}
+.about .txt{display:grid;gap:18px;font-size:var(--t-lg);max-width:62ch}
+.about .txt strong{color:var(--fg);font-weight:600}
+.about .txt p{color:var(--muted)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:0;margin-top:10px;border-top:1px solid var(--line)}
+.facts dt,.facts dd{margin:0;padding:12px 0;border-bottom:1px solid var(--line)}
+.facts dt{font:500 var(--t-xs)/1.9 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding-right:24px}
+.facts dd{font-size:var(--t-md);color:var(--fg)}
+.idcard{padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:8px;display:grid;gap:14px}
+.scan{position:relative;aspect-ratio:4/4.6;overflow:hidden;border-radius:4px;background:
+  linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px,
+  radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--cyan) 22%,transparent),transparent 65%),var(--panel-2)}
+.scan img{position:absolute;left:50%;bottom:0;width:96%;height:auto;transform:translateX(-50%)}
+.scan .line{position:absolute;left:0;right:0;height:2px;background:var(--cyan);box-shadow:0 0 18px 4px var(--glow);top:10%;animation:sweep 4.5s ease-in-out infinite alternate}
+@keyframes sweep{to{top:92%}}
+.scan .face{--c:var(--ok);--s:12px;position:absolute;left:31%;top:14%;width:39%;height:40%}
+.scan .face b{position:absolute;top:-20px;left:-2px;font:500 10.5px/1 var(--f-mono);color:#03140d;background:var(--ok);padding:4px 5px;border-radius:2px;white-space:nowrap}
+.readout{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font:400 12px/1.5 var(--f-mono)}
+.readout span:nth-child(odd){color:var(--faint)}
+.readout span:nth-child(even){color:var(--fg)}
+@media (max-width:860px){.about{grid-template-columns:1fr}.idcard{max-width:420px}}
+
+/* ---------- experience ---------- */
+.tl{display:grid;gap:22px;position:relative}
+.job{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px 32px;position:relative}
+.job .when{display:grid;gap:6px;align-content:start;padding-top:22px}
+.job .when .dates{font:500 var(--t-sm) var(--f-mono);color:var(--fg)}
+.job .when .dur{font:400 var(--t-xs) var(--f-mono);color:var(--faint)}
+.job .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:26px;display:grid;gap:16px;transition:border-color .25s,transform .25s}
+.job .card:hover{border-color:color-mix(in srgb,var(--cyan) 50%,var(--line))}
+.job h3{font-weight:600;font-size:var(--t-2xl);line-height:1.15}
+.job .org{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 var(--t-sm) var(--f-mono);color:var(--cyan)}
+.job .org span+span{color:var(--muted)}
+.job ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.job li{position:relative;padding-left:20px;color:var(--muted)}
+.job li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border:1.5px solid var(--cyan);transform:rotate(45deg)}
+.job li strong{color:var(--fg);font-weight:600}
+.awards-row{display:flex;flex-wrap:wrap;gap:8px}
+.medal{display:inline-flex;align-items:center;gap:8px;font:500 12px/1.2 var(--f-mono);padding:8px 10px;border-radius:5px;background:color-mix(in srgb,var(--amber) 12%,var(--panel));color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 35%,var(--line))}
+.medal svg{width:14px;height:14px;flex:none}
+@media (max-width:760px){.job{grid-template-columns:1fr}.job .when{padding-top:0;grid-auto-flow:column;justify-content:start;gap:14px}}
+
+/* ---------- projects ---------- */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.tab{display:grid;gap:3px;text-align:left;padding:12px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;min-width:0;transition:border-color .2s,background .2s}
+.tab b{font:600 var(--t-lg)/1.1 var(--f-display);color:var(--fg)}
+.tab small{font:400 11.5px var(--f-mono)}
+.tab[aria-selected="true"]{border-color:var(--cyan);background:var(--panel-2);box-shadow:inset 0 -2px 0 var(--cyan)}
+.tab[aria-selected="true"] b{color:var(--cyan)}
+.proj{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px;align-items:start}
+.proj .info{display:grid;gap:18px}
+.proj h3{font-weight:700;font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.05}
+.proj .tagline{color:var(--muted);font-size:var(--t-lg)}
+.kpis{display:flex;flex-wrap:wrap;gap:10px}
+.kpi{display:grid;gap:2px;padding:10px 14px;border-left:2px solid var(--amber);background:var(--panel)}
+.kpi b{font:600 1.4rem/1.1 var(--f-display);color:var(--fg);font-variant-numeric:tabular-nums}
+.kpi span{font:400 11px var(--f-mono);color:var(--muted)}
+.proj ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:8px}
+.proj ul li::marker{color:var(--cyan)}
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:12px;min-width:0}
+.demo-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.demo-top .label{color:var(--cyan)}
+.demo-top .hint{font:400 11px var(--f-mono);color:var(--faint)}
+.screen{--s:12px;position:relative;border-radius:4px;overflow:hidden;padding:2px}
+.screen canvas{display:block;width:100%;border-radius:3px;background:#0b111d}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctrl-btn{font:500 12px var(--f-mono);padding:9px 12px;border-radius:5px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);cursor:pointer;transition:border-color .2s,color .2s}
+.ctrl-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
+.ctrl-btn.go{background:var(--cyan);color:var(--on-accent);border-color:var(--cyan)}
+.ctrl-btn.go:hover:not(:disabled){color:var(--on-accent);filter:brightness(1.1)}
+.ctrl-btn:disabled{opacity:.45;cursor:not-allowed}
+.meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.meter{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:grid;gap:6px;min-width:0}
+.meter span{font:400 10.5px var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.meter b{font:600 var(--t-md) var(--f-mono);font-variant-numeric:tabular-nums}
+.bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--cyan);transition:width .2s}
+.meter.fuse b{color:var(--faint)}
+.meter.fuse.hot b{color:var(--ok)}
+.range{display:flex;align-items:center;gap:10px;flex:1;min-width:200px;font:400 12px var(--f-mono);color:var(--muted)}
+.range input{flex:1;accent-color:var(--amber)}
+.legend{display:flex;align-items:center;gap:8px;font:400 11px var(--f-mono);color:var(--muted)}
+.legend i{display:block;width:120px;height:8px;border-radius:2px;background:linear-gradient(90deg,#1b2a6b,#7a2c8f,#e0573a,#ffb547,#fff3b0)}
+.tip{position:absolute;pointer-events:none;z-index:5;font:400 11.5px/1.5 var(--f-mono);background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--line);color:var(--fg);padding:8px 10px;border-radius:5px;white-space:nowrap;box-shadow:0 8px 24px var(--shade)}
+.tip b{color:var(--amber);font-weight:500}
+.qa{display:grid;gap:10px}
+.qchips{display:flex;flex-wrap:wrap;gap:6px}
+.qchip{font:500 12px var(--f-mono);padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);cursor:pointer}
+.qchip:hover{border-color:var(--cyan);color:var(--cyan)}
+.ask{display:flex;gap:8px}
+.ask input{flex:1;min-width:0;font:400 var(--t-sm) var(--f-mono);padding:10px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg)}
+.ask input::placeholder{color:var(--faint)}
+.answer{font:400 12.5px/1.6 var(--f-mono);background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:84px;color:var(--muted);white-space:pre-wrap}
+.answer .a{color:var(--ok)}
+.answer .q{color:var(--fg)}
+.also{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:28px}
+.also div{border:1px dashed var(--line);border-radius:8px;padding:16px;display:grid;gap:4px}
+.also b{font:600 var(--t-lg) var(--f-display)}
+.also span{color:var(--muted);font-size:var(--t-sm)}
+@media (max-width:960px){.proj{grid-template-columns:1fr}}
+@media (max-width:480px){.meters{grid-template-columns:1fr 1fr}.meter.fuse{grid-column:1/-1}}
+
+/* ---------- research ---------- */
+.pubs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pub{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px;display:grid;gap:12px;align-content:start;text-decoration:none;transition:border-color .2s,transform .2s}
+a.pub:hover{border-color:var(--cyan);transform:translateY(-3px)}
+.pub .venue{font:500 var(--t-xs)/1.5 var(--f-mono);color:var(--cyan);letter-spacing:.06em;text-transform:uppercase}
+.pub h3{font-weight:600;font-size:var(--t-xl);line-height:1.25}
+.pub p{color:var(--muted);font-size:var(--t-sm)}
+.pub .go{font:500 12px var(--f-mono);color:var(--amber)}
+.pub.patent{--c:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,var(--line))}
+.pub.patent .venue{color:var(--amber)}
+@media (max-width:760px){.pubs{grid-template-columns:1fr}}
+
+/* ---------- skills ---------- */
+.skills{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:32px;align-items:start}
+.sgroups{display:grid;gap:22px}
+.sgroup{display:grid;gap:10px}
+.sgroup h3{font:500 var(--t-xs)/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.skill{font:500 13px/1 var(--f-body);padding:9px 12px;border-radius:5px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer;transition:all .18s}
+.skill:hover{border-color:var(--cyan)}
+.skill[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--on-accent)}
+.skill.dim{opacity:.4}
+.usage{position:sticky;top:84px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;display:grid;gap:14px}
+.usage h3{font-weight:600;font-size:var(--t-2xl);line-height:1.1}
+.usage .where{display:grid;gap:8px}
+.usage .where a{display:grid;gap:2px;text-decoration:none;padding:10px 12px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);transition:border-color .2s}
+.usage .where a:hover{border-color:var(--cyan)}
+.usage .where b{font:600 var(--t-md) var(--f-display)}
+.usage .where span{font:400 11.5px var(--f-mono);color:var(--muted)}
+.usage .none{color:var(--muted);font-size:var(--t-sm)}
+@media (max-width:860px){.skills{grid-template-columns:1fr}.usage{position:static}}
+
+/* ---------- education ---------- */
+.edu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.school{--c:var(--cyan);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:26px;display:grid;gap:12px;align-content:start}
+.school .yrs{font:500 var(--t-xs) var(--f-mono);color:var(--cyan);letter-spacing:.08em}
+.school h3{font-weight:600;font-size:var(--t-xl);line-height:1.2}
+.school .where{color:var(--muted);font-size:var(--t-sm)}
+.school .diss{border-left:2px solid var(--amber);padding:8px 0 8px 14px;color:var(--fg);font-size:var(--t-sm)}
+.school .diss b{display:block;font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:2px}
+.grade{display:flex;gap:18px;flex-wrap:wrap}
+.grade div{display:grid}
+.grade b{font:600 var(--t-2xl)/1.1 var(--f-display)}
+.grade span{font:400 11px var(--f-mono);color:var(--muted)}
+@media (max-width:760px){.edu{grid-template-columns:1fr}}
+
+/* ---------- awards ---------- */
+.awards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.award{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px;display:grid;gap:8px;align-content:start;transition:transform .2s,border-color .2s}
+.award:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--amber) 55%,var(--line))}
+.award .yr{font:500 11px var(--f-mono);color:var(--amber);letter-spacing:.08em}
+.award h3{font-weight:600;font-size:var(--t-lg);line-height:1.25}
+.award p{color:var(--muted);font-size:var(--t-sm)}
+.award.big{grid-column:span 2;background:linear-gradient(135deg,color-mix(in srgb,var(--amber) 14%,var(--panel)),var(--panel) 60%);border-color:color-mix(in srgb,var(--amber) 40%,var(--line))}
+.award.big h3{font-size:var(--t-2xl)}
+.certs{margin-top:40px;display:grid;gap:0;border-top:1px solid var(--line)}
+.cert{display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none}
+.cert .d{font:400 12px var(--f-mono);color:var(--faint)}
+.cert b{font-weight:600}
+.cert span{color:var(--muted);font-size:var(--t-sm)}
+.cert .v{font:500 12px var(--f-mono);color:var(--cyan)}
+a.cert:hover b{color:var(--cyan)}
+@media (max-width:900px){.awards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.awards{grid-template-columns:1fr}.award.big{grid-column:auto}.cert{grid-template-columns:1fr auto}.cert .d{grid-column:1/-1}}
+
+/* ---------- console ---------- */
+.term{background:#060a12;border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:0 30px 70px -30px var(--shade)}
+.term-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#0c1322;border-bottom:1px solid #1c2945}
+.term-bar i{width:11px;height:11px;border-radius:50%;background:#2a3654}
+.term-bar i:nth-child(1){background:#ff5d6c}.term-bar i:nth-child(2){background:#ffb547}.term-bar i:nth-child(3){background:#3ee0a1}
+.term-bar span{font:400 12px var(--f-mono);color:#7d8aa3;margin-left:8px}
+.term-out{height:340px;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px 18px;font:400 13px/1.65 var(--f-mono);color:#c7d3e8}
+.term-out .p{color:#46d4ff}.term-out .k{color:#ffb547}.term-out .g{color:#3ee0a1}.term-out .m{color:#7d8aa3}
+.term-out a{color:#46d4ff}
+.term-in{display:flex;align-items:center;gap:10px;padding:12px 18px;border-top:1px solid #1c2945;font:400 13px var(--f-mono);color:#46d4ff}
+.term-in input{flex:1;min-width:0;background:none;border:0;outline:none;color:#e8eef8;font:inherit}
+.term-in input:focus-visible{outline:none}
+.term:focus-within{border-color:#46d4ff}
+.term-hints{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+/* ---------- contact ---------- */
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start}
+.contact h2{font-weight:700;font-size:clamp(2.2rem,5vw,4rem);line-height:.98;text-transform:uppercase}
+.contact h2 span{color:var(--cyan)}
+.contact .pitch{display:grid;gap:18px}
+.contact .pitch p{color:var(--muted);font-size:var(--t-lg);max-width:46ch}
+.clist{display:grid;gap:10px}
+.crow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:8px;transition:border-color .2s}
+.crow:hover{border-color:var(--cyan)}
+.crow .ic{width:44px;height:44px;border-radius:6px;display:grid;place-items:center;background:var(--panel-2);color:var(--cyan);border:1px solid var(--line)}
+.crow .ic svg{width:20px;height:20px}
+.crow .k{font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.crow .v{font-weight:600;overflow-wrap:anywhere;user-select:all}
+.crow a.v{text-decoration:none}
+.crow a.v:hover{color:var(--cyan)}
+.copy{font:500 11.5px var(--f-mono);padding:8px 10px;border-radius:5px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);cursor:pointer;min-width:66px}
+.copy:hover{border-color:var(--cyan);color:var(--cyan)}
+.copy.done{color:var(--ok);border-color:var(--ok)}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+footer{padding-block:28px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font:400 12px var(--f-mono);color:var(--faint)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Atharva Kalase, back to top">
+      <span class="mark bracket">AK</span>
+      <span class="nm">atharva<span>.</span>kalase</span>
+    </a>
+    <nav class="links" aria-label="Sections">
+      <a href="#about">about</a>
+      <a href="#experience">experience</a>
+      <a href="#projects">projects</a>
+      <a href="#research">research</a>
+      <a href="#skills">skills</a>
+      <a href="#education">education</a>
+      <a href="#awards">awards</a>
+      <a href="#console">console</a>
+      <a href="#contact">contact</a>
+    </nav>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch colour theme">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+    </button>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main id="top">
+<!-- ================= HERO ================= -->
+<section class="hero" aria-label="Introduction">
+  <canvas class="track" id="track" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="intro">
+      <div class="eyebrow">
+        <span class="live"><i></i>Open to data science &amp; AI roles</span>
+        <span class="label">Belfast, UK · 54.597° N 5.930° W</span>
+      </div>
+      <h1 class="name" id="name"><span class="l1" data-text="Atharva Uday">Atharva Uday</span><span class="l2" data-text="Kalase">Kalase</span></h1>
+      <p class="role">Data scientist building <span class="typed" id="typed">vision-language models for satellite imagery</span><span class="caret" aria-hidden="true"></span></p>
+      <p class="lede">MSc Data Science &amp; AI at Queen's University Belfast, with two years of professional experience across satellite-imagery research at ISRO's Space Applications Centre and enterprise software delivery at Avalara. Published in remote sensing journals and named on an issued Indian patent.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#projects">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 17h6M17 14v6"/></svg>
+          Try the project demos</a>
+        <a class="btn ghost" href="#contact">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
+          Get in touch</a>
+        <a class="btn ghost" id="cvBtn" href="#" target="_blank" rel="noopener" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>
+          Résumé (PDF)</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b data-count="98"><span class="n">98</span><em>%</em></b><span>ambulance detection accuracy</span></div>
+        <div class="stat"><b data-count="93"><span class="n">93</span><em>%</em></b><span>rooftop solar model accuracy</span></div>
+        <div class="stat"><b data-count="150"><span class="n">150</span><em>+</em></b><span>enterprise customers delivered</span></div>
+        <div class="stat"><b><em>#</em>1</b><span>Smart India Hackathon 2022</span></div>
+      </div>
+    </div>
+
+    <div class="stage-col">
+      <div class="stage" id="stage" data-mode="avatar">
+        <canvas class="back" id="orbBack" aria-hidden="true"></canvas>
+        <div class="disc">
+          <div class="photo-bg"></div>
+          <img class="avatar" src="assets/avatar.webp" alt="Illustrated avatar of Atharva wearing smart glasses and a headset over a circuit-board background" width="880" height="880">
+          <img class="photo" src="assets/photo.webp" alt="Photo of Atharva Kalase in a navy blazer" width="640" height="725">
+        </div>
+        <canvas class="front" id="orbFront" aria-hidden="true"></canvas>
+        <div class="detect bracket" aria-hidden="true"><span class="tag" id="detTag">atharva · data_scientist 0.98</span></div>
+      </div>
+      <div class="mode" role="group" aria-label="Portrait style">
+        <button type="button" id="mAvatar" aria-pressed="true">Techie avatar</button>
+        <button type="button" id="mPhoto" aria-pressed="false">Real photo</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="block" id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">About</span><span class="sub">who · what · where</span></div>
+      <div><h2>I take computer-vision systems from research question to validated prototype.</h2></div>
+    </div>
+    <div class="about">
+      <div class="txt">
+        <p>I'm <strong>Atharva Uday Kalase</strong>, a data scientist from Pune now studying for an <strong>MSc in Data Science &amp; Artificial Intelligence at Queen's University Belfast</strong>. My work sits where imagery meets machine learning: satellite and elevation data, audio and video streams, and the models that turn them into decisions.</p>
+        <p>At <strong>ISRO's Space Applications Centre</strong> I built SolView, a rooftop solar-potential model that reached <strong>93% accuracy</strong> across Ahmedabad, Gandhinagar and Delhi. Before that, I led the team behind <strong>EmergiSense</strong>, a multimodal ambulance detector running in real time on an NVIDIA Jetson Nano at <strong>98% accuracy</strong>. It won the Smart India Hackathon nationwide and earned an issued Indian patent.</p>
+        <p>At <strong>Avalara</strong> I owned end-to-end implementations of tax automation software for <strong>150+ enterprise customers</strong>, which taught me how software behaves once real users depend on it. I'm now looking for a data science or AI engineering role where multimodal and geospatial machine learning has measurable operational impact.</p>
+        <dl class="facts">
+          <dt>Based in</dt><dd>Belfast, Northern Ireland, UK</dd>
+          <dt>Studying</dt><dd>MSc Data Science &amp; AI, Queen's University Belfast · Jan 2026 – Jan 2027</dd>
+          <dt>Experience</dt><dd>2+ years · ISRO Space Applications Centre, Avalara</dd>
+          <dt>Focus</dt><dd>Multimodal &amp; geospatial ML, computer vision, vision-language models</dd>
+          <dt>Looking for</dt><dd>Data scientist or AI engineer roles</dd>
+        </dl>
+      </div>
+      <figure class="idcard" style="margin:0">
+        <div class="scan">
+          <img src="assets/photo.webp" alt="Atharva Kalase" width="640" height="725" loading="lazy">
+          <div class="face bracket"><b>face 0.99 · verified</b></div>
+          <div class="line" aria-hidden="true"></div>
+        </div>
+        <figcaption class="readout">
+          <span>SUBJECT</span><span>A. U. KALASE</span>
+          <span>ROLE</span><span>DATA SCIENTIST · CV / GIS</span>
+          <span>BASE</span><span>BELFAST, UK</span>
+          <span>ORIGIN</span><span>PUNE, IN · 18.52° N 73.86° E</span>
+          <span>STATUS</span><span style="color:var(--ok)">AVAILABLE</span>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXPERIENCE ================= -->
+<section class="block alt" id="experience">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Experience</span><span class="sub">2022 → 2025 · 2+ years</span></div>
+      <div><h2>From satellite labs to enterprise go-lives.</h2><p>A year of computer vision and GIS research at India's space agency, then over a year delivering production software for enterprise customers in India and the US.</p></div>
+    </div>
+    <div class="tl">
+      <article class="job">
+        <div class="when"><span class="dates">Mar 2024 – May 2025</span><span class="dur">1 yr 3 mo · full time</span></div>
+        <div class="card">
+          <div><h3>Implementation Consultant</h3>
+          <div class="org"><span>Avalara</span><span>Pune, India</span></div></div>
+          <ul>
+            <li>Owned end-to-end implementation of tax automation software for a portfolio of <strong>150+ enterprise customers</strong>, from ERP and Salesforce integration through configuration, go-live and post-launch support.</li>
+            <li>Diagnosed and resolved integration, calculation and returns-filing defects across the AvaTax suite, holding configurations to audit-ready standards.</li>
+            <li>Placed <strong>3rd across India and the US</strong> in the Q3 2024 random quality audit.</li>
+          </ul>
+          <div class="awards-row">
+            <span class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>Bull's Eye, Best Throughout · Jul &amp; Dec 2024, Jan &amp; Feb 2025</span>
+            <span class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>Most Valuable Performer · Jan &amp; Feb 2025</span>
+            <span class="medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="m8.5 12-1.5 9 5-3 5 3-1.5-9"/></svg>Orange Ambassador of Avalara · 2025–26</span>
+          </div>
+          <div class="chips"><span class="chip">AvaTax</span><span class="chip">Salesforce</span><span class="chip">Jira</span><span class="chip">Gainsight</span><span class="chip">SQL</span><span class="chip">US sales tax &amp; returns filing</span></div>
+        </div>
+      </article>
+      <article class="job">
+        <div class="when"><span class="dates">Jul 2022 – Jul 2023</span><span class="dur">1 yr · full time</span></div>
+        <div class="card">
+          <div><h3>Computer Vision &amp; GIS Researcher</h3>
+          <div class="org"><span>ISRO · Space Applications Centre</span><span>Ahmedabad, India</span></div></div>
+          <ul>
+            <li>Worked in the <strong>Advanced Visualization and Development Department</strong> under the guidance of Mr. Jai Singla, Scientist/Engineer at SAC, ISRO.</li>
+            <li>Built <strong>SolView</strong>, rooftop solar-potential analysis from high-resolution satellite imagery and DEMs, reaching <strong>93% accuracy</strong> over Ahmedabad, Gandhinagar and Delhi. Later published in the Journal of the Indian Society of Remote Sensing.</li>
+            <li>Contributed to the <strong>Urban Visibility Analysis</strong> and <strong>Fort Visibility Analysis</strong> projects.</li>
+          </ul>
+          <div class="chips"><span class="chip">Python</span><span class="chip">Machine Learning</span><span class="chip">Computer Vision</span><span class="chip">GIS</span><span class="chip">ArcGIS Pro</span><span class="chip">Remote Sensing</span><span class="chip">R&amp;D</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section class="block" id="projects">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Projects</span><span class="sub">3 systems · interactive</span></div>
+      <div><h2>Play with the work.</h2><p>Each project comes with a small simulation you can drive. They're illustrations built for this page, showing what each system does; the reported accuracy figures come from the real models.</p></div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Projects">
+      <button class="tab" role="tab" id="t-emergi" aria-controls="p-emergi" aria-selected="true"><b>EmergiSense</b><small>multimodal ambulance detection</small></button>
+      <button class="tab" role="tab" id="t-solview" aria-controls="p-solview" aria-selected="false" tabindex="-1"><b>SolView</b><small>rooftop solar potential · ISRO</small></button>
+      <button class="tab" role="tab" id="t-rsvqa" aria-controls="p-rsvqa" aria-selected="false" tabindex="-1"><b>RSVQA</b><small>MSc dissertation · VLMs</small></button>
+    </div>
+
+    <!-- EmergiSense -->
+    <div class="proj" role="tabpanel" id="p-emergi" aria-labelledby="t-emergi">
+      <div class="info">
+        <span class="label" style="color:var(--amber)">Smart India Hackathon 2022 · Rank 1 · Patent issued</span>
+        <h3>EmergiSense</h3>
+        <p class="tagline">A multimodal deep learning system that hears and sees an approaching ambulance at a traffic signal, then clears its lane.</p>
+        <div class="kpis">
+          <div class="kpi"><b>98%</b><span>detection accuracy</span></div>
+          <div class="kpi"><b>30+ s</b><span>emergency response time saved</span></div>
+          <div class="kpi"><b>Edge</b><span>real-time on Jetson Nano</span></div>
+        </div>
+        <ul>
+          <li>Fuses audio (siren) and video (vehicle) evidence to detect ambulances at signals.</li>
+          <li>Inference deployed on an NVIDIA Jetson Nano for real-time roadside operation, built in Python, PyTorch and OpenCV.</li>
+          <li>Led the team to Rank 1 nationwide at the Smart India Hackathon; pitched to Maharashtra Police, AICTE and the BHAU Institute, COEP Pune. One national patent issued.</li>
+        </ul>
+        <div class="chips"><span class="chip">Python</span><span class="chip">PyTorch</span><span class="chip">OpenCV</span><span class="chip">Audio + video fusion</span><span class="chip">NVIDIA Jetson Nano</span></div>
+      </div>
+      <div class="demo">
+        <div class="demo-top"><span class="label">Junction feed · simulation</span><span class="hint">dispatch an ambulance and watch the signal</span></div>
+        <div class="screen bracket"><canvas id="emCanvas" style="aspect-ratio:16/10.5" aria-label="Simulated traffic junction with audio waveform"></canvas></div>
+        <div class="meters">
+          <div class="meter"><span>Audio · siren</span><b id="emA">0.04</b><div class="bar"><i id="emAb"></i></div></div>
+          <div class="meter"><span>Video · ambulance</span><b id="emV">0.00</b><div class="bar"><i id="emVb"></i></div></div>
+          <div class="meter fuse" id="emF"><span>Fusion decision</span><b id="emD">Normal cycle</b></div>
+        </div>
+        <div class="ctrls">
+          <button class="ctrl-btn go" id="emGo" type="button">Dispatch ambulance</button>
+          <button class="ctrl-btn" id="emNo" type="button" aria-pressed="false">Detection: on</button>
+          <span class="hint mono" id="emSaved" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SolView -->
+    <div class="proj" role="tabpanel" id="p-solview" aria-labelledby="t-solview" hidden>
+      <div class="info">
+        <span class="label" style="color:var(--amber)">ISRO Space Applications Centre · J. Indian Soc. Remote Sensing 2025</span>
+        <h3>SolView</h3>
+        <p class="tagline">Software that estimates rooftop solar potential for whole cities from high-resolution satellite imagery and digital elevation models.</p>
+        <div class="kpis">
+          <div class="kpi"><b>93%</b><span>accuracy</span></div>
+          <div class="kpi"><b>3 cities</b><span>Ahmedabad · Gandhinagar · Delhi</span></div>
+        </div>
+        <ul>
+          <li>Combines satellite imagery with a DEM so building heights, and the shadows they cast, feed into each roof's estimate.</li>
+          <li>Built with Python, OpenCV, machine learning and ArcGIS Pro.</li>
+          <li>Helps planners see which roofs are worth fitting with panels, improving the efficiency of solar programmes.</li>
+        </ul>
+        <div class="chips"><span class="chip">Python</span><span class="chip">OpenCV</span><span class="chip">ML</span><span class="chip">ArcGIS Pro</span><span class="chip">DEM</span><span class="chip">Remote Sensing</span></div>
+      </div>
+      <div class="demo">
+        <div class="demo-top"><span class="label">City block · simulation</span><span class="hint">drag the sun · hover a roof</span></div>
+        <div class="screen bracket" style="--c:var(--amber)"><canvas id="svCanvas" style="aspect-ratio:16/10.5" aria-label="Simulated city block with building shadows and rooftop solar heatmap"></canvas><div class="tip" id="svTip" hidden></div></div>
+        <div class="ctrls">
+          <label class="range" for="svHour">Sun <input type="range" id="svHour" min="7" max="18" step="0.25" value="10"><span id="svHourLbl" class="mono">10:00</span></label>
+        </div>
+        <div class="ctrls">
+          <button class="ctrl-btn go" id="svHeat" type="button" aria-pressed="true">Solar heatmap: on</button>
+          <button class="ctrl-btn" id="svNew" type="button">New city block</button>
+          <span class="legend"><span>low</span><i></i><span>high kWh/yr</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RSVQA -->
+    <div class="proj" role="tabpanel" id="p-rsvqa" aria-labelledby="t-rsvqa" hidden>
+      <div class="info">
+        <span class="label" style="color:var(--amber)">MSc dissertation · Queen's University Belfast · in progress</span>
+        <h3>RSVQA</h3>
+        <p class="tagline">Visual question answering for remote sensing imagery: ask a satellite image a question in plain English and get a grounded answer.</p>
+        <div class="kpis">
+          <div class="kpi"><b>Qwen2.5-VL</b><span>fine-tuned with QLoRA</span></div>
+          <div class="kpi"><b>VRSBench</b><span>benchmark</span></div>
+        </div>
+        <ul>
+          <li>Answers questions about object counts, presence, relative position and land use, so non-specialists can query Earth observation data without GIS training.</li>
+          <li>Qwen2.5-VL is fine-tuned with QLoRA for parameter-efficient adaptation on a single GPU.</li>
+          <li>Paired with Grounding DINO so each answer is anchored to located objects instead of being generated unsupported.</li>
+        </ul>
+        <div class="chips"><span class="chip">PyTorch</span><span class="chip">Hugging Face Transformers</span><span class="chip">PEFT / QLoRA</span><span class="chip">Grounding DINO</span><span class="chip">VLMs</span></div>
+      </div>
+      <div class="demo">
+        <div class="demo-top"><span class="label">Satellite tile · simulation</span><span class="hint">ask about the scene</span></div>
+        <div class="screen bracket"><canvas id="vqCanvas" style="aspect-ratio:1/1;max-height:520px;object-fit:contain" aria-label="Simulated satellite tile with grounded answer boxes"></canvas></div>
+        <div class="qa">
+          <div class="qchips" id="vqChips">
+            <button class="qchip" type="button">How many buildings are there?</button>
+            <button class="qchip" type="button">How many vehicles are on the road?</button>
+            <button class="qchip" type="button">Is there any water in the image?</button>
+            <button class="qchip" type="button">What is to the left of the lake?</button>
+            <button class="qchip" type="button">What is the main land use?</button>
+          </div>
+          <form class="ask" id="vqForm">
+            <label class="sr" for="vqQ">Ask a question about the tile</label>
+            <input id="vqQ" type="text" placeholder="Ask your own, e.g. are there any trees?" autocomplete="off">
+            <button class="ctrl-btn go" type="submit">Ask</button>
+            <button class="ctrl-btn" type="button" id="vqNew" title="Generate a new tile">New tile</button>
+          </form>
+          <div class="answer" id="vqAns" aria-live="polite"><span class="m">› model ready. Pick a question above.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="also">
+      <div><span class="label">ISRO SAC</span><b>Urban Visibility Analysis</b><span>GIS visibility study in the Advanced Visualization and Development Department.</span></div>
+      <div><span class="label">ISRO SAC</span><b>Fort Visibility Analysis</b><span>GIS visibility study of heritage fort sites using elevation data.</span></div>
+      <div><span class="label">GitHub</span><b><a href="https://github.com/Atharvauk" target="_blank" rel="noopener" style="text-decoration:none">github.com/Atharvauk ↗</a></b><span>Code and experiments.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESEARCH ================= -->
+<section class="block alt" id="research">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Research</span><span class="sub">3+ papers · 1 patent · Scopus-indexed</span></div>
+      <div><h2>Peer-reviewed, and patented.</h2><p>Three or more papers in Scopus-indexed conferences and journals, and a national patent issued for EmergiSense.</p></div>
+    </div>
+    <div class="pubs">
+      <a class="pub" href="https://link.springer.com/article/10.1007/s12524-025-02212-0" target="_blank" rel="noopener">
+        <span class="venue">Journal of the Indian Society of Remote Sensing · Jun 2025</span>
+        <h3>Solar Potential Analysis Over Indian Cities Using High-Resolution Satellite Imagery and DEM</h3>
+        <p>The SolView work from ISRO SAC: rooftop solar potential estimated from satellite imagery and elevation data across Indian cities.</p>
+        <span class="go">Read on Springer ↗</span>
+      </a>
+      <a class="pub" href="https://pubs.aip.org/aip/acp/article/2717/1/030003/2899680/Multimodal-detection-of-ambulance-using-Jetson" target="_blank" rel="noopener">
+        <span class="venue">ICICEEE · AIP Conference Proceedings · Jun 2023</span>
+        <h3>Multimodal Detection of Ambulance Using Jetson Nano</h3>
+        <p>EmergiSense: audio and video detection of ambulances at traffic signals, running at the edge. Won the Best Presentation Award at ICICEEE-22.</p>
+        <span class="go">Read on AIP ↗</span>
+      </a>
+      <div class="pub patent bracket">
+        <span class="venue">Indian patent · issued</span>
+        <h3>EmergiSense: multimodal ambulance detection system</h3>
+        <p>National patent issued for the system that detects approaching ambulances from audio and video and gives them priority at traffic signals.</p>
+      </div>
+      <div class="pub">
+        <span class="venue">Skoltech (Russia) &amp; European Space Agency</span>
+        <h3>Introduction to Satellite Engineering</h3>
+        <p>Graduate course completed alongside undergraduate study, covering how satellites are designed and operated.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section class="block" id="skills">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Skills</span><span class="sub">select one to trace it</span></div>
+      <div><h2>Tools I use, and where I've used them.</h2><p>Pick a skill to see the projects and roles behind it.</p></div>
+    </div>
+    <div class="skills">
+      <div class="sgroups" id="sgroups"></div>
+      <aside class="usage" id="usage" aria-live="polite"></aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EDUCATION ================= -->
+<section class="block alt" id="education">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Education</span><span class="sub">2019 → 2027</span></div>
+      <div><h2>Electronics engineer turned data scientist.</h2></div>
+    </div>
+    <div class="edu">
+      <article class="school">
+        <span class="yrs">JAN 2026 – JAN 2027 · IN PROGRESS</span>
+        <h3>M.S. Data Science &amp; Artificial Intelligence</h3>
+        <span class="where">Queen's University Belfast, United Kingdom</span>
+        <div class="diss"><b>Dissertation</b>Visual Question Answering for Remote Sensing Imagery: QLoRA fine-tuning of Qwen2.5-VL with Grounding DINO for object grounding, benchmarked on VRSBench.</div>
+        <div class="chips"><span class="chip">Machine Learning</span><span class="chip">Artificial Intelligence</span><span class="chip">Data Mining</span><span class="chip">Data Analytics</span><span class="chip">Data Visualization</span><span class="chip">AI Ethics</span></div>
+      </article>
+      <article class="school">
+        <span class="yrs">AUG 2019 – MAY 2023</span>
+        <h3>B.Tech Electronics &amp; Communication Engineering</h3>
+        <span class="where">Vishwakarma Institute of Technology, Pune, India</span>
+        <div class="grade"><div><b>8.65<small style="font-size:.55em;color:var(--muted)">/10</small></b><span>academic CGPA</span></div><div><b>80%</b><span>percentage</span></div></div>
+        <div class="chips"><span class="chip">Data Structures</span><span class="chip">Machine Learning</span><span class="chip">Computer Vision</span><span class="chip">GIS</span><span class="chip">Signal Processing</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AWARDS ================= -->
+<section class="block" id="awards">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Awards</span><span class="sub">competitions · recognition · certificates</span></div>
+      <div><h2>Recognition along the way.</h2></div>
+    </div>
+    <div class="awards">
+      <article class="award big"><span class="yr">2022 · TEAM LEAD</span><h3>Smart India Hackathon, winner</h3><p>Led the team to Rank 1 nationwide with EmergiSense and received a prize of INR 1 lakh.</p></article>
+      <article class="award"><span class="yr">2025</span><h3>Entrepreneurship Excellence Award</h3><p>Entrepreneurship Startup and Innovation Forum, Student Ambassador category.</p></article>
+      <article class="award"><span class="yr">2022</span><h3>Best Presentation Award</h3><p>ICICEEE-22, International Conference on Innovation in Computer Science, Electrical and Electronics Engineering, Annasaheb Dange College of Engineering, Ashta.</p></article>
+      <article class="award"><span class="yr">Q3 2024</span><h3>3rd across India &amp; US</h3><p>Avalara random quality audit of implementation work.</p></article>
+      <article class="award"><span class="yr">2024 – 2025</span><h3>Bull's Eye, MVP &amp; Orange Ambassador</h3><p>Avalara: Best Throughout four times, Most Valuable Performer twice, Orange Ambassador 2025–26.</p></article>
+      <article class="award"><span class="yr">2022 – 2023</span><h3>2nd Runner-Up, four times</h3><p>PRATYAGNA 2022, INGENIOUS 22, and PICT INC IMPETUS 2022 and 2023.</p></article>
+      <article class="award"><span class="yr">SCHOLARSHIP</span><h3>INR 1,00,000 scholarship</h3><p>Ranked in the top 15 of 1,000 police personnel wards, Fiat India Automobiles CSR scheme.</p></article>
+      <article class="award"><span class="yr">PITCH</span><h3>Presented to Pune Police</h3><p>Demonstrated EmergiSense to the Maharashtra Pune Police Department.</p></article>
+    </div>
+
+    <div class="certs">
+      <a class="cert" href="https://www.coursera.org/account/accomplishments/specialization/certificate/M44F3AVYCQBR" target="_blank" rel="noopener"><span class="d">AUG 2020</span><div><b>Python for Everybody</b> <span>· University of Michigan</span></div><span class="v">verify ↗</span></a>
+      <a class="cert" href="https://www.coursera.org/account/accomplishments/certificate/NGM9URAH4BJN" target="_blank" rel="noopener"><span class="d">SEP 2020</span><div><b>The Data Scientist's Toolbox</b> <span>· Johns Hopkins University</span></div><span class="v">verify ↗</span></a>
+      <a class="cert" href="https://www.udemy.com/certificate/UC-7d4be4b2-fda5-4d99-9484-c1aafdb44cdc/" target="_blank" rel="noopener"><span class="d">AUG 2020</span><div><b>C++: Zero to Hero</b> <span>· Udemy, Ankit Thakran</span></div><span class="v">verify ↗</span></a>
+      <div class="cert"><span class="d">JUN 2021</span><div><b>Artificial Intelligence in Power Electronics: Electric Car</b></div><span class="v" style="color:var(--faint)">certificate</span></div>
+      <div class="cert"><span class="d">JUN 2021</span><div><b>Range Over Rocketry Webinar</b> <span>· ISRO VSSUT Space Innovation Centre</span></div><span class="v" style="color:var(--faint)">certificate</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONSOLE ================= -->
+<section class="block alt" id="console">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="meta"><span class="label">Console</span><span class="sub">for the terminal-minded</span></div>
+      <div><h2>Prefer a shell? Query me.</h2><p>Type <span class="mono" style="color:var(--cyan)">help</span> to see what this console understands.</p></div>
+    </div>
+    <div class="term" id="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>atharva@belfast: ~</span></div>
+      <div class="term-out" id="termOut" aria-live="polite"></div>
+      <label class="term-in" for="termIn"><span>atharva@belfast:~$</span><input id="termIn" type="text" autocomplete="off" spellcheck="false" aria-label="Console command"></label>
+    </div>
+    <div class="term-hints" id="termHints"></div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="block" id="contact">
+  <div class="wrap">
+    <div class="contact">
+      <div class="pitch">
+        <span class="label" style="color:var(--cyan)">Contact</span>
+        <h2>Let's build models that <span>see</span>.</h2>
+        <p>I'm looking for data science and AI engineering roles in the UK, especially work on computer vision, multimodal or geospatial machine learning. The quickest way to reach me is email.</p>
+      </div>
+      <div class="clist">
+        <div class="crow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span><div><div class="k">Email</div><a class="v" href="mailto:atharvauk1000@gmail.com" id="vEmail">atharvauk1000@gmail.com</a></div><button class="copy" type="button" data-copy="atharvauk1000@gmail.com">Copy</button></div>
+        <div class="crow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><div><div class="k">Phone</div><span class="v">+44 7352 664083</span></div><button class="copy" type="button" data-copy="+447352664083">Copy</button></div>
+        <div class="crow"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5M3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.1c0-1.22-.02-2.78-1.7-2.78-1.7 0-1.96 1.33-1.96 2.7V21h-4z"/></svg></span><div><div class="k">LinkedIn</div><a class="v" href="https://www.linkedin.com/in/atharva-kalase" target="_blank" rel="noopener">linkedin.com/in/atharva-kalase</a></div><button class="copy" type="button" data-copy="https://www.linkedin.com/in/atharva-kalase">Copy</button></div>
+        <div class="crow"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.08.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.1-1.47-1.1-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.57.69.48A10 10 0 0 0 12 2"/></svg></span><div><div class="k">GitHub</div><a class="v" href="https://github.com/Atharvauk" target="_blank" rel="noopener">github.com/Atharvauk</a></div><button class="copy" type="button" data-copy="https://github.com/Atharvauk">Copy</button></div>
+        <div class="crow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div><div class="k">Location</div><span class="v">Belfast, United Kingdom</span></div><span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap"><span>© 2026 Atharva Uday Kalase</span><span>Belfast · 54.597° N 5.930° W</span></div>
+</footer>
+
+<script>
+(() => {
+const RESUME_URL = 'assets/Atharva_U_Kalase_CV.pdf';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const root = document.documentElement;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tok = n => getComputedStyle(root).getPropertyValue(n).trim();
+let T = {};
+function readTokens(){ ['--cyan','--amber','--ok','--alert','--fg','--muted','--faint','--line','--grid','--panel','--panel-2','--bg'].forEach(k => T[k.slice(2)] = tok(k)); }
+readTokens();
+
+if (RESUME_URL) { const b = $('#cvBtn'); b.href = RESUME_URL; b.hidden = false; }
+
+/* ---------- theme ---------- */
+const sunIcon = '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>';
+const moonIcon = '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
+const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches;
+function syncThemeIcon(){ $('#themeIcon').innerHTML = isDark() ? sunIcon : moonIcon; }
+try { const s = localStorage.getItem('ak-theme'); if (s === 'light' || s === 'dark') root.dataset.theme = s; } catch (e) {}
+syncThemeIcon();
+$('#themeBtn').addEventListener('click', () => {
+  const n = isDark() ? 'light' : 'dark';
+  root.dataset.theme = n;
+  try { localStorage.setItem('ak-theme', n); } catch (e) {}
+  syncThemeIcon(); readTokens(); redrawAll();
+});
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { syncThemeIcon(); readTokens(); redrawAll(); });
+
+/* ---------- canvas plumbing ---------- */
+function fit(cv){
+  const r = cv.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.max(1, Math.round(r.width * d)), h = Math.max(1, Math.round(r.height * d));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const ctx = cv.getContext('2d'); ctx.setTransform(d, 0, 0, d, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+const loops = []; // {el, frame(t, dt), visible}
+function addLoop(el, frame){ const L = { el, frame, visible: true }; loops.push(L); io.observe(el); return L; }
+const io = new IntersectionObserver(es => es.forEach(e => { const L = loops.find(l => l.el === e.target); if (L) L.visible = e.isIntersecting; }), { rootMargin: '80px' });
+let last = performance.now();
+function tick(now){
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const L of loops) if (L.visible && L.el.offsetParent !== null) L.frame(now / 1000, reduce ? 0 : dt);
+  if (!reduce) requestAnimationFrame(tick);
+}
+function redrawAll(){ const now = performance.now() / 1000; loops.forEach(L => { if (L.el.offsetParent !== null) L.frame(now, 0); }); }
+addEventListener('resize', () => requestAnimationFrame(redrawAll));
+function rng(seed){ let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hexA(c, a){ // works for #rrggbb tokens
+  if (!c || c[0] !== '#') return c; const n = parseInt(c.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`;
+}
+
+/* ---------- nav progress + active link ---------- */
+const prog = $('#progress');
+addEventListener('scroll', () => { const h = document.documentElement; prog.style.transform = `scaleX(${h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)})`; }, { passive: true });
+const navLinks = $$('.links a');
+const secIO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+}), { rootMargin: '-45% 0px -50% 0px' });
+$$('main section[id]').forEach(s => secIO.observe(s));
+
+/* ---------- name decode + role typer ---------- */
+if (!reduce) {
+  const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*<>/';
+  $$('#name [data-text]').forEach((el, li) => {
+    const txt = el.dataset.text, t0 = performance.now(), dur = 700 + li * 250;
+    const run = () => {
+      const k = (performance.now() - t0) / dur;
+      if (k >= 1) { el.textContent = txt; return; }
+      el.textContent = txt.split('').map((c, i) => c === ' ' || i < k * txt.length ? c : glyphs[(Math.random() * glyphs.length) | 0]).join('');
+      setTimeout(run, 40);
+    };
+    run();
+  });
+}
+const phrases = ['vision-language models for satellite imagery', 'real-time detection on edge hardware', 'geospatial machine learning', 'multimodal audio + video systems', 'models that ship to production'];
+if (!reduce) {
+  const el = $('#typed'); let pi = 0, ci = phrases[0].length, del = true, wait = 2200;
+  const step = () => {
+    if (wait > 0) { wait -= 60; return setTimeout(step, 60); }
+    const p = phrases[pi];
+    if (del) { ci--; if (ci <= 0) { del = false; pi = (pi + 1) % phrases.length; } }
+    else { ci++; if (ci >= phrases[pi].length) { del = true; wait = 2200; } }
+    el.textContent = phrases[pi].slice(0, ci) || '​';
+    setTimeout(step, del ? 28 : 55);
+  };
+  setTimeout(step, 1400);
+}
+
+/* ---------- counters ---------- */
+const cIO = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting || reduce) return; cIO.unobserve(e.target);
+  const n = e.target.querySelector('.n'), to = +e.target.dataset.count, t0 = performance.now();
+  const f = () => { const k = Math.min(1, (performance.now() - t0) / 1400); n.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) setTimeout(f, 30); };
+  f();
+}));
+$$('[data-count]').forEach(b => cIO.observe(b));
+
+/* ---------- hero: ground-track map ---------- */
+const track = $('#track'); const mouse = { x: .5, y: .5, tx: .5, ty: .5 };
+$('.hero').addEventListener('pointermove', e => { const r = track.getBoundingClientRect(); mouse.tx = (e.clientX - r.left) / r.width; mouse.ty = (e.clientY - r.top) / r.height; });
+const places = [ { n: 'PUNE', lat: 18.52, lon: 73.86 }, { n: 'AHMEDABAD · ISRO SAC', lat: 23.03, lon: 72.58 }, { n: 'BELFAST · QUB', lat: 54.6, lon: -5.93 } ];
+addLoop(track, (t) => {
+  const { ctx, w, h } = fit(track); ctx.clearRect(0, 0, w, h);
+  mouse.x += (mouse.tx - mouse.x) * .05; mouse.y += (mouse.ty - mouse.y) * .05;
+  const ox = (mouse.x - .5) * -16, oy = (mouse.y - .5) * -10;
+  ctx.save(); ctx.translate(ox, oy);
+  const X = lon => (lon + 180) / 360 * (w + 40) - 20, Y = lat => (90 - lat) / 180 * (h + 40) - 20;
+  ctx.lineWidth = 1; ctx.strokeStyle = T.grid; ctx.beginPath();
+  for (let lo = -180; lo <= 180; lo += 15) { ctx.moveTo(X(lo), -30); ctx.lineTo(X(lo), h + 30); }
+  for (let la = -90; la <= 90; la += 15) { ctx.moveTo(-30, Y(la)); ctx.lineTo(w + 30, Y(la)); }
+  ctx.stroke();
+  ctx.font = '500 9.5px "JetBrains Mono", monospace'; ctx.fillStyle = hexA(T.faint, .8);
+  for (let la = -60; la <= 60; la += 30) ctx.fillText((la >= 0 ? la + '°N' : -la + '°S'), X(-180) + 26, Y(la) - 4);
+  for (let lo = -150; lo <= 150; lo += 30) ctx.fillText((lo >= 0 ? lo + '°E' : -lo + '°W'), X(lo) + 4, Y(-75) + 12);
+  // ground tracks: sinusoids that shift west on each pass (Earth rotates beneath the orbit)
+  const inc = 52, period = 22, shift = 24;
+  for (let k = 0; k < 4; k++) {
+    ctx.beginPath();
+    for (let lo = -200; lo <= 200; lo += 4) { const la = inc * Math.sin((lo + k * shift + 40) * Math.PI / 180); lo === -200 ? ctx.moveTo(X(lo), Y(la)) : ctx.lineTo(X(lo), Y(la)); }
+    ctx.strokeStyle = hexA(T.cyan, .22 - k * .045); ctx.setLineDash(k ? [3, 5] : []); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  // satellite on the live pass
+  const ph = ((t / period) % 1) * 400 - 200; const sLa = inc * Math.sin((ph + 40) * Math.PI / 180);
+  const grad = ctx.createLinearGradient(X(ph - 90), 0, X(ph), 0); grad.addColorStop(0, hexA(T.cyan, 0)); grad.addColorStop(1, hexA(T.cyan, .9));
+  ctx.beginPath(); for (let lo = ph - 90; lo <= ph; lo += 2) { const la = inc * Math.sin((lo + 40) * Math.PI / 180); lo === ph - 90 ? ctx.moveTo(X(lo), Y(la)) : ctx.lineTo(X(lo), Y(la)); }
+  ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.stroke();
+  const sx = X(ph), sy = Y(sLa);
+  ctx.fillStyle = hexA(T.cyan, .12); ctx.beginPath(); ctx.arc(sx, sy, 26 + 4 * Math.sin(t * 3), 0, 7); ctx.fill();
+  ctx.fillStyle = T.cyan; ctx.fillRect(sx - 3, sy - 3, 6, 6); ctx.fillRect(sx - 11, sy - 1, 6, 2); ctx.fillRect(sx + 5, sy - 1, 6, 2);
+  ctx.fillStyle = hexA(T.cyan, .85);
+  const lonTxt = ((ph % 360) + 540) % 360 - 180;
+  if (w > 700) ctx.fillText(`EO-SAT  ${Math.abs(sLa).toFixed(2)}°${sLa >= 0 ? 'N' : 'S'} ${Math.abs(lonTxt).toFixed(2)}°${lonTxt >= 0 ? 'E' : 'W'}`, sx + 14, sy - 10);
+  // journey: Pune → Ahmedabad → Belfast
+  const P = places.map(p => [X(p.lon), Y(p.lat)]);
+  ctx.strokeStyle = hexA(T.amber, .55); ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]); ctx.lineDashOffset = -t * 12;
+  ctx.beginPath(); ctx.moveTo(...P[0]); ctx.quadraticCurveTo(P[0][0] - 10, P[0][1] - 30, ...P[1]);
+  ctx.moveTo(...P[1]); ctx.quadraticCurveTo((P[1][0] + P[2][0]) / 2, Math.min(P[1][1], P[2][1]) - 70, ...P[2]); ctx.stroke(); ctx.setLineDash([]);
+  places.forEach((p, i) => {
+    const [px, py] = P[i]; ctx.fillStyle = T.amber; ctx.beginPath(); ctx.arc(px, py, 3, 0, 7); ctx.fill();
+    ctx.strokeStyle = hexA(T.amber, .5 + .3 * Math.sin(t * 2 + i)); ctx.beginPath(); ctx.arc(px, py, 7 + 3 * Math.sin(t * 2 + i), 0, 7); ctx.stroke();
+    if (w > 700) { ctx.fillStyle = hexA(T.amber, .9); ctx.fillText(p.n, px + 10, py + (i === 0 ? 14 : -8)); }
+  });
+  ctx.restore();
+});
+
+/* ---------- hero: orbits around the portrait ---------- */
+const oB = $('#orbBack'), oF = $('#orbFront');
+const orbits = [ { r: .47, inc: 1.2, tilt: -.38, sp: .32, ph: 0, c: 'cyan' }, { r: .44, inc: 1.28, tilt: .62, sp: -.22, ph: 2.4, c: 'amber' } ];
+const orbLoop = addLoop($('#stage'), (t) => {
+  const b = fit(oB), f = fit(oF); const S = b.w, c = S / 2;
+  b.ctx.clearRect(0, 0, S, S); f.ctx.clearRect(0, 0, S, S);
+  const pt = (o, th) => { const x = Math.cos(th), y0 = Math.sin(th) * Math.cos(o.inc), z = Math.sin(th) * Math.sin(o.inc);
+    return [c + (x * Math.cos(o.tilt) - y0 * Math.sin(o.tilt)) * o.r * S, c + (x * Math.sin(o.tilt) + y0 * Math.cos(o.tilt)) * o.r * S, z]; };
+  for (const o of orbits) {
+    const col = T[o.c];
+    for (let i = 0; i < 120; i++) {
+      const a = pt(o, i / 120 * Math.PI * 2), z = pt(o, (i + .5) / 120 * Math.PI * 2)[2], bb = pt(o, (i + 1) / 120 * Math.PI * 2);
+      const g = z > 0 ? f.ctx : b.ctx; g.strokeStyle = hexA(col, z > 0 ? .55 : .25); g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(bb[0], bb[1]); g.stroke();
+    }
+    const th = o.ph + t * o.sp; const [sx, sy, sz] = pt(o, th); const g = sz > 0 ? f.ctx : b.ctx;
+    for (let k = 1; k < 26; k++) { const p = pt(o, th - Math.sign(o.sp) * k * .03); g.fillStyle = hexA(col, (1 - k / 26) * .7); g.fillRect(p[0] - 1.5, p[1] - 1.5, 3, 3); }
+    g.save(); g.translate(sx, sy); g.rotate(o.tilt);
+    g.fillStyle = col; g.shadowColor = col; g.shadowBlur = 14; g.fillRect(-4, -4, 8, 8); g.shadowBlur = 0;
+    g.fillStyle = hexA(col, .8); g.fillRect(-15, -2.5, 9, 5); g.fillRect(6, -2.5, 9, 5); g.restore();
+  }
+});
+const stage = $('#stage');
+function setMode(m){ stage.dataset.mode = m; $('#mAvatar').setAttribute('aria-pressed', m === 'avatar'); $('#mPhoto').setAttribute('aria-pressed', m === 'photo'); $('#detTag').textContent = m === 'avatar' ? 'atharva · data_scientist 0.98' : 'atharva · person 0.99'; }
+$('#mAvatar').onclick = () => setMode('avatar'); $('#mPhoto').onclick = () => setMode('photo');
+
+/* ---------- project tabs ---------- */
+const tabs = $$('.tab');
+function selectTab(tb){
+  tabs.forEach(x => { const on = x === tb; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; $('#' + x.getAttribute('aria-controls')).hidden = !on; });
+  requestAnimationFrame(redrawAll);
+}
+tabs.forEach((tb, i) => {
+  tb.addEventListener('click', () => selectTab(tb));
+  tb.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; selectTab(n); n.focus(); } });
+});
+
+/* ---------- EmergiSense: junction simulation ---------- */
+(() => {
+  const cv = $('#emCanvas'); const R = rng(11);
+  const carCols = ['#9aa6bd', '#5d7fb8', '#c4c9d4', '#7a8aa6', '#b56b5e', '#d9b45a', '#4f9a8a'];
+  let cars = [], cross = [], light = 'red', cycle = 0, amb = null, aConf = .04, vConf = 0, priority = false, wave = new Array(240).fill(0), wph = 0, detectOn = true, tDispatch = 0, saved = '';
+  const lane = .42, stopX = .63, roadTop = .3, roadBot = .54, crossL = .66, crossR = .8, scene = .64;
+  function mk(x, isAmb){ return { x, len: isAmb ? .085 : .055 + R() * .02, v: 0, col: carCols[(R() * carCols.length) | 0], amb: !!isAmb, conf: .9 + R() * .09 }; }
+  for (let i = 0; i < 5; i++) cars.push(mk(.55 - i * .085));
+  for (let i = 0; i < 3; i++) cross.push({ y: -.2 - i * .25, v: 0, col: carCols[(R() * carCols.length) | 0] });
+  $('#emGo').onclick = () => { if (amb) return; amb = mk(-.12, true); cars.push(amb); tDispatch = 0; saved = ''; $('#emGo').disabled = true; };
+  $('#emNo').onclick = () => { detectOn = !detectOn; $('#emNo').textContent = 'Detection: ' + (detectOn ? 'on' : 'off'); $('#emNo').setAttribute('aria-pressed', !detectOn); };
+  function update(dt, t){
+    if (!dt) return;
+    if (amb) tDispatch += dt;
+    // signal: normal cycle 6 s red / 4 s green for our lane, overridden by priority
+    if (amb && detectOn && aConf > .85 && vConf > .85 && amb.x < stopX + .05) priority = true;
+    if (priority && amb && amb.x > crossR + .02) priority = false;
+    if (priority) light = 'green'; else { cycle = (cycle + dt) % 10; light = cycle < 6 ? 'red' : 'green'; }
+    const vmax = .16; cars.sort((a, b) => b.x - a.x);
+    cars.forEach((c, i) => {
+      let limit = Infinity; const front = c.x + c.len;
+      if (i > 0) limit = cars[i - 1].x - .018;
+      if (light !== 'green' && front <= stopX + .002) limit = Math.min(limit, stopX);
+      const d = limit - front; const target = Math.max(0, Math.min(vmax * (c.amb ? 1.25 : 1), d * 2.4));
+      c.v += (target - c.v) * Math.min(1, dt * 4); c.x += c.v * dt;
+    });
+    cars = cars.filter(c => c.x < 1.15);
+    if (amb && !cars.includes(amb)) { amb = null; $('#emGo').disabled = false; }
+    const lastCar = cars.reduce((m, c) => Math.min(m, c.x), 1);
+    const queued = cars.filter(c => c.x < stopX).length;
+    if (lastCar > .02 && queued < 5 && R() < dt * .9 && !(amb && amb.x < .1)) cars.push(mk(-.08));
+    // cross traffic flows only while our lane is red
+    cross.forEach((c, i) => {
+      const stopY = roadTop - .06, go = light === 'red' && !priority;
+      let limit = Infinity; const lead = cross.filter(o => o.y > c.y).sort((a, b) => a.y - b.y)[0];
+      if (lead) limit = lead.y - .16; if (!go && c.y + .1 <= stopY + .002) limit = Math.min(limit, stopY - .1);
+      const target = Math.max(0, Math.min(.22, (limit - c.y) * 3)); c.v += (target - c.v) * Math.min(1, dt * 4); c.y += c.v * dt;
+      if (c.y > scene + .1) { c.y = -.25 - R() * .2; c.col = carCols[(R() * carCols.length) | 0]; }
+    });
+    // sensors
+    const near = amb ? Math.max(0, Math.min(1, (amb.x + .15) / .8)) : 0;
+    aConf += ((amb ? .88 + .1 * near : .04 + .03 * Math.sin(t * 2)) - aConf) * Math.min(1, dt * 2.5);
+    vConf += ((amb && amb.x + amb.len > .03 ? .98 : 0) - vConf) * Math.min(1, dt * 3);
+    if (priority && !saved && amb) saved = 'Priority green after ' + tDispatch.toFixed(1) + ' s from first siren';
+    // audio waveform
+    for (let k = 0; k < 3; k++) {
+      wph += amb ? (0.9 + .5 * Math.sin(t * 2.2)) : .35;
+      const noise = (R() - .5) * .18, siren = amb ? Math.sin(wph) * (.2 + .7 * near) : 0;
+      wave.push(noise + siren + .06 * Math.sin(t * 9 + k)); wave.shift();
+    }
+  }
+  function draw(t){
+    const { ctx, w, h } = fit(cv); const sh = h * scene;
+    ctx.fillStyle = '#0e1a14'; ctx.fillRect(0, 0, w, sh);
+    // verges
+    ctx.fillStyle = '#16261c'; for (let i = 0; i < 40; i++) { const x = (i * 97) % w, y = (i * 53) % (sh * .25); ctx.fillRect(x, y, 3, 3); ctx.fillRect((x * 1.3) % w, sh * .62 + (y % (sh * .3)), 3, 3); }
+    // roads
+    ctx.fillStyle = '#262c37'; ctx.fillRect(0, roadTop * h, w, (roadBot - roadTop) * h); ctx.fillRect(crossL * w, 0, (crossR - crossL) * w, sh);
+    ctx.strokeStyle = '#e8d38a'; ctx.setLineDash([14, 12]); ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(0, (roadTop + roadBot) / 2 * h); ctx.lineTo(crossL * w, (roadTop + roadBot) / 2 * h); ctx.moveTo(crossR * w, (roadTop + roadBot) / 2 * h); ctx.lineTo(w, (roadTop + roadBot) / 2 * h); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#e8eef8'; ctx.fillRect(stopX * w + 2, ((roadTop + roadBot) / 2) * h + 2, 3, (roadBot - (roadTop + roadBot) / 2) * h - 4);
+    // crossings stripes
+    ctx.fillStyle = 'rgba(232,238,248,.5)'; for (let y = roadTop * h + 4; y < roadBot * h - 4; y += 9) ctx.fillRect(crossL * w - 12, y, 9, 5);
+    // cross traffic (southbound)
+    cross.forEach(c => { const x = (crossL + .035) * w, y = c.y * h; ctx.fillStyle = c.col; ctx.fillRect(x, y, .035 * w, .1 * h); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + 2, y + .055 * h, .035 * w - 4, .02 * h); });
+    // eastbound cars + detections
+    ctx.font = '500 10px "JetBrains Mono", monospace';
+    let labelEnd = -1e9; // skip car labels that would collide with the previous one
+    [...cars].sort((a, b) => a.x - b.x).forEach(c => {
+      const x = c.x * w, y = lane * h, L = c.len * w, H = .07 * h;
+      ctx.fillStyle = c.amb ? '#f4f6fb' : c.col; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, L, H, 4) : ctx.rect(x, y, L, H); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + L * .62, y + 3, L * .18, H - 6);
+      if (c.amb) {
+        ctx.fillStyle = '#e8394a'; ctx.fillRect(x + L * .25, y + H / 2 - 2, L * .22, 4); ctx.fillRect(x + L * .34, y + H / 2 - 8, 4, 16);
+        const on = Math.floor(t * 8) % 2; ctx.fillStyle = on ? '#ff3b4d' : '#3b7bff'; ctx.fillRect(x + L * .5, y - 1, 5, 4); ctx.fillStyle = on ? '#3b7bff' : '#ff3b4d'; ctx.fillRect(x + L * .5, y + H - 3, 5, 4);
+        ctx.fillStyle = on ? 'rgba(255,59,77,.18)' : 'rgba(59,123,255,.18)'; ctx.beginPath(); ctx.arc(x + L * .5, y + H / 2, 26, 0, 7); ctx.fill();
+      }
+      if (detectOn && x > -L && x < w) {
+        const col = c.amb ? '#ffb547' : 'rgba(70,212,255,.55)'; ctx.strokeStyle = col; ctx.lineWidth = c.amb ? 2 : 1; ctx.strokeRect(x - 3, y - 3, L + 6, H + 6);
+        const lbl = c.amb ? `ambulance ${vConf.toFixed(2)}` : `car ${c.conf.toFixed(2)}`;
+        const tw = ctx.measureText(lbl).width + 8;
+        if (c.amb || x - 3 > labelEnd + 4) { ctx.fillStyle = col; ctx.fillRect(x - 3, y - 17, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(lbl, x + 1, y - 6); labelEnd = x - 3 + tw; }
+      }
+    });
+    // signal head
+    const sx = stopX * w - 4, sy = roadBot * h + 8;
+    ctx.fillStyle = '#0a0e16'; ctx.fillRect(sx, sy, 16, 40); ctx.strokeStyle = '#3a4560'; ctx.strokeRect(sx, sy, 16, 40);
+    ctx.fillStyle = light === 'red' ? '#ff4b5c' : '#3a1d24'; ctx.beginPath(); ctx.arc(sx + 8, sy + 11, 5.5, 0, 7); ctx.fill();
+    ctx.fillStyle = light === 'green' ? '#3ee0a1' : '#173328'; ctx.beginPath(); ctx.arc(sx + 8, sy + 29, 5.5, 0, 7); ctx.fill();
+    if (priority) { ctx.fillStyle = '#3ee0a1'; ctx.font = '600 11px "JetBrains Mono", monospace'; ctx.fillText('PRIORITY GREEN', sx + 22, sy + 33); }
+    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillText('CAM-01 · JETSON NANO · ' + (detectOn ? 'INFERENCE ON' : 'INFERENCE OFF'), 10, 16);
+    // audio panel
+    ctx.fillStyle = '#081019'; ctx.fillRect(0, sh, w, h - sh); ctx.strokeStyle = '#1c2945'; ctx.beginPath(); ctx.moveTo(0, sh + .5); ctx.lineTo(w, sh + .5); ctx.stroke();
+    const mid = sh + (h - sh) * .56, amp = (h - sh) * .36;
+    ctx.strokeStyle = 'rgba(70,212,255,.12)'; ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(w, mid); ctx.stroke();
+    ctx.strokeStyle = amb ? '#ffb547' : '#46d4ff'; ctx.lineWidth = 1.4; ctx.beginPath();
+    wave.forEach((v, i) => { const x = i / (wave.length - 1) * w, y = mid - v * amp; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.fillText('MIC-01 · ' + (amb ? 'SIREN PATTERN DETECTED' : 'AMBIENT TRAFFIC'), 10, sh + 16);
+  }
+  addLoop(cv, (t, dt) => {
+    update(dt, t); draw(t);
+    $('#emA').textContent = aConf.toFixed(2); $('#emAb').style.width = (aConf * 100) + '%';
+    $('#emV').textContent = vConf.toFixed(2); $('#emVb').style.width = (vConf * 100) + '%';
+    $('#emF').classList.toggle('hot', priority); $('#emD').textContent = priority ? 'Priority green' : amb ? (detectOn ? 'Confirming…' : 'Not detected') : 'Normal cycle';
+    $('#emSaved').textContent = saved;
+  });
+})();
+
+/* ---------- SolView: shadows + rooftop potential ---------- */
+(() => {
+  const cv = $('#svCanvas'), tip = $('#svTip'), hourEl = $('#svHour'); let heat = true, seed = 4, B = [], hover = -1;
+  const WW = 400, WH = 262; // metres
+  function build(){
+    const R = rng(seed); B = [];
+    const cols = 5, rows = 3, road = 14, bw = (WW - road * (cols + 1)) / cols, bh = (WH - road * (rows + 1)) / rows;
+    for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+      const x0 = road + i * (bw + road), y0 = road + j * (bh + road);
+      // split block into 2–4 plots
+      const splitX = R() < .6, n = 2 + ((R() * 3) | 0); let acc = 0;
+      for (let k = 0; k < n; k++) {
+        const frac = k === n - 1 ? 1 - acc : (1 / n) * (.7 + R() * .6); const pad = 3;
+        const r = splitX ? { x: x0 + acc * bw + pad, y: y0 + pad, w: frac * bw - pad * 2, h: bh - pad * 2 } : { x: x0 + pad, y: y0 + acc * bh + pad, w: bw - pad * 2, h: frac * bh - pad * 2 };
+        acc += frac; if (r.w < 6 || r.h < 6) continue;
+        const sh = .7 + R() * .25; r.x += r.w * (1 - sh) / 2 * R(); r.w *= sh; r.y += r.h * (1 - sh) / 2 * R(); r.h *= sh;
+        r.z = 6 + Math.pow(R(), 1.6) * 42; r.tone = 150 + R() * 70; r.tank = R() < .5; B.push(r);
+      }
+    }
+    // annual-ish shading: average over 08:00–17:00
+    B.forEach(b => b.shade = 0);
+    for (let hr = 8; hr <= 17; hr++) { const s = sun(hr); B.forEach((b, i) => b.shade += shadedFrac(i, s) / 10); }
+    B.forEach(b => { b.area = b.w * b.h; b.kwh = b.area * .7 * .2 * 1900 * (1 - b.shade); });
+    const mx = Math.max(...B.map(b => b.kwh / b.area)), mn = Math.min(...B.map(b => b.kwh / b.area));
+    B.forEach(b => b.raw = ((b.kwh / b.area) - mn) / Math.max(1e-6, mx - mn) * .75 + Math.min(1, b.area / 900) * .25);
+    [...B].sort((a, b) => a.raw - b.raw).forEach((b, i, arr) => b.score = i / Math.max(1, arr.length - 1)); // rank, so the colour scale spans the block
+  }
+  function sun(hr){ // northern-India sun: rises east, passes south, sets west
+    const az = (90 + (hr - 6) / 12 * 180) * Math.PI / 180; const el = Math.max(6, 72 * Math.sin(Math.PI * (hr - 6) / 12)) * Math.PI / 180;
+    const k = 1 / Math.tan(el); return { dx: -Math.sin(az) * k, dy: Math.cos(az) * k, el }; // shadow vector per metre of height (north up)
+  }
+  function shadedFrac(i, s){
+    const a = B[i]; let hit = 0, n = 0;
+    for (let u = .15; u < 1; u += .35) for (let v = .15; v < 1; v += .35) {
+      n++; const px = a.x + a.w * u, py = a.y + a.h * v;
+      for (let j = 0; j < B.length; j++) { if (j === i) continue; const b = B[j]; if (b.z <= a.z) continue;
+        const reach = b.z - a.z; let inside = false;
+        for (let t = 0; t <= 1; t += .125) { const qx = px - s.dx * reach * t, qy = py - s.dy * reach * t; if (qx >= b.x && qx <= b.x + b.w && qy >= b.y && qy <= b.y + b.h) { inside = true; break; } }
+        if (inside) { hit++; break; } }
+    }
+    return hit / n;
+  }
+  function heatCol(v){ const st = [[27,42,107],[122,44,143],[224,87,58],[255,181,71],[255,243,176]]; v = Math.max(0, Math.min(1, v)) * (st.length - 1); const i = Math.min(st.length - 2, Math.floor(v)), f = v - i; const c = st[i].map((x, k) => Math.round(x + (st[i + 1][k] - x) * f)); return `rgb(${c})`; }
+  function draw(){
+    const { ctx, w, h } = fit(cv); const sc = Math.min(w / WW, h / WH), ox = (w - WW * sc) / 2, oy = (h - WH * sc) / 2;
+    const hr = +hourEl.value, s = sun(hr);
+    ctx.fillStyle = '#2a2b30'; ctx.fillRect(0, 0, w, h);
+    ctx.save(); ctx.translate(ox, oy); ctx.scale(sc, sc);
+    ctx.fillStyle = '#3a3a38'; ctx.fillRect(0, 0, WW, WH);
+    // blocks ground
+    ctx.fillStyle = '#6b6555';
+    const cols = 5, rows = 3, road = 14, bw = (WW - road * (cols + 1)) / cols, bh = (WH - road * (rows + 1)) / rows;
+    for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) ctx.fillRect(road + i * (bw + road), road + j * (bh + road), bw, bh);
+    ctx.strokeStyle = 'rgba(240,230,170,.35)'; ctx.lineWidth = .6; ctx.setLineDash([4, 4]);
+    for (let j = 0; j <= rows; j++) { ctx.beginPath(); ctx.moveTo(0, road / 2 + j * (bh + road)); ctx.lineTo(WW, road / 2 + j * (bh + road)); ctx.stroke(); }
+    ctx.setLineDash([]);
+    // shadows
+    ctx.fillStyle = 'rgba(8,10,20,.5)';
+    B.forEach(b => { const dx = s.dx * b.z, dy = s.dy * b.z; const c = [[b.x, b.y], [b.x + b.w, b.y], [b.x + b.w, b.y + b.h], [b.x, b.y + b.h]];
+      for (let k = 0; k < 4; k++) { const p = c[k], q = c[(k + 1) % 4]; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.lineTo(q[0] + dx, q[1] + dy); ctx.lineTo(p[0] + dx, p[1] + dy); ctx.fill(); }
+      ctx.fillRect(b.x + dx, b.y + dy, b.w, b.h); });
+    // roofs
+    B.forEach((b, i) => {
+      const g = b.tone | 0; ctx.fillStyle = heat ? heatCol(b.score) : `rgb(${g},${g - 6},${g - 14})`; ctx.fillRect(b.x, b.y, b.w, b.h);
+      if (!heat) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(b.x + b.w * .1, b.y + b.h * .1, b.w * .8, 1.2); if (b.tank) { ctx.fillStyle = '#20232b'; ctx.beginPath(); ctx.arc(b.x + b.w * .75, b.y + b.h * .3, 2.2, 0, 7); ctx.fill(); } }
+      ctx.strokeStyle = i === hover ? '#46d4ff' : 'rgba(0,0,0,.35)'; ctx.lineWidth = i === hover ? 2 / sc * 1.5 : .6; ctx.strokeRect(b.x, b.y, b.w, b.h);
+    });
+    ctx.restore();
+    // compass + sun readout
+    ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(232,238,248,.75)';
+    ctx.fillText(`SUN EL ${(s.el * 180 / Math.PI).toFixed(0)}° · DEM-DERIVED HEIGHTS · ${B.length} ROOFS`, 10, 16);
+    const cx = w - 24, cy = 26; ctx.strokeStyle = 'rgba(232,238,248,.6)'; ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 7); ctx.stroke(); ctx.fillText('N', cx - 3, cy - 15);
+    ctx.fillStyle = '#ffb547'; const sa = Math.atan2(-s.dy, -s.dx); ctx.beginPath(); ctx.arc(cx + Math.cos(sa) * 12, cy + Math.sin(sa) * 12, 3.5, 0, 7); ctx.fill();
+    return { sc, ox, oy };
+  }
+  let geo = { sc: 1, ox: 0, oy: 0 };
+  build();
+  addLoop(cv, () => { geo = draw(); });
+  hourEl.addEventListener('input', () => { const v = +hourEl.value; $('#svHourLbl').textContent = String(Math.floor(v)).padStart(2, '0') + ':' + String(Math.round((v % 1) * 60)).padStart(2, '0'); geo = draw(); });
+  $('#svHeat').onclick = e => { heat = !heat; e.currentTarget.textContent = 'Solar heatmap: ' + (heat ? 'on' : 'off'); e.currentTarget.setAttribute('aria-pressed', heat); e.currentTarget.classList.toggle('go', heat); geo = draw(); };
+  $('#svNew').onclick = () => { seed++; build(); hover = -1; tip.hidden = true; geo = draw(); };
+  cv.addEventListener('pointermove', e => {
+    const r = cv.getBoundingClientRect(), x = (e.clientX - r.left - geo.ox) / geo.sc, y = (e.clientY - r.top - geo.oy) / geo.sc;
+    const i = B.findIndex(b => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h);
+    if (i !== hover) { hover = i; geo = draw(); }
+    if (i < 0) { tip.hidden = true; return; }
+    const b = B[i], grade = b.score > .7 ? 'high' : b.score > .4 ? 'medium' : 'low';
+    tip.innerHTML = `ROOF #${String(i + 1).padStart(2, '0')} · height ${b.z.toFixed(0)} m<br>area ${b.area.toFixed(0)} m² · shaded ${(b.shade * 100).toFixed(0)}%<br><b>${(b.kwh / 1000).toFixed(1)} MWh/yr</b> · suitability ${grade}`;
+    tip.hidden = false; const pr = cv.parentElement.getBoundingClientRect();
+    let tx = e.clientX - pr.left + 14, ty = e.clientY - pr.top + 14; if (tx + tip.offsetWidth > pr.width) tx -= tip.offsetWidth + 28; if (ty + tip.offsetHeight > pr.height) ty -= tip.offsetHeight + 28;
+    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+  });
+  cv.addEventListener('pointerleave', () => { hover = -1; tip.hidden = true; geo = draw(); });
+})();
+
+/* ---------- RSVQA: grounded answers on a synthetic tile ---------- */
+(() => {
+  const cv = $('#vqCanvas'), ans = $('#vqAns'), N = 512; const off = document.createElement('canvas'); off.width = off.height = N; const o = off.getContext('2d');
+  let seed = 21, S = {}, boxes = [], boxT = 0, busy = false;
+  function far(p, list, d){ return list.every(q => Math.hypot(p.x - q.x, p.y - q.y) > d); }
+  function gen(){
+    const R = rng(seed); S = { buildings: [], cars: [], trees: [] };
+    // fields patchwork
+    const fc = ['#5f7a3a', '#6e8a45', '#8a8a4f', '#7b6a45', '#4f6b35', '#9a8b5c', '#69804a'];
+    for (let y = 0; y < N;) { const hh = 50 + R() * 70; for (let x = 0; x < N;) { const ww = 60 + R() * 90; o.fillStyle = fc[(R() * fc.length) | 0]; o.fillRect(x, y, ww + 1, hh + 1);
+      o.strokeStyle = 'rgba(0,0,0,.08)'; for (let k = 0; k < ww; k += 5) { o.beginPath(); o.moveTo(x + k, y); o.lineTo(x + k, y + hh); o.stroke(); } x += ww; } y += hh; }
+    // river
+    const ry0 = 70 + R() * 120, ry1 = 300 + R() * 150; const c1 = { x: 170, y: ry0 + 160 * R() }, c2 = { x: 340, y: ry1 - 160 * R() };
+    S.river = []; for (let t = 0; t <= 1; t += .01) { const u = 1 - t; S.river.push({ x: u * u * u * -10 + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t * t * t * (N + 10), y: u * u * u * ry0 + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * ry1 }); }
+    const strokeRiver = (wd, col) => { o.strokeStyle = col; o.lineWidth = wd; o.lineCap = 'round'; o.beginPath(); S.river.forEach((p, i) => i ? o.lineTo(p.x, p.y) : o.moveTo(p.x, p.y)); o.stroke(); };
+    strokeRiver(30, '#7c8a5c'); strokeRiver(22, '#2c5872'); strokeRiver(8, 'rgba(120,170,200,.25)');
+    const nearRiver = (x, y, d) => S.river.some(p => Math.hypot(p.x - x, p.y - y) < d);
+    // road geometry (north-south, crosses the river on a bridge)
+    const rx = 90 + R() * 90; S.road = rx;
+    const roadX = y => { const t = y / N, u = 1 - t; return u * u * u * (rx - 20) + 3 * u * u * t * (rx + 20) + 3 * u * t * t * (rx - 20) + t * t * t * (rx + 10); };
+    // lake, with a sports field on its west side clear of river and road
+    const sf = { w: 56, h: 34 };
+    for (let tries = 0; tries < 400; tries++) {
+      const L = { x: 330 + R() * 130, y: 60 + R() * 390, rx: 38 + R() * 20, ry: 26 + R() * 14 };
+      const fx = L.x - L.rx - 22 - sf.w, fy = L.y - sf.h / 2;
+      if (nearRiver(L.x, L.y, L.rx + 36) || nearRiver(fx + sf.w / 2, fy + sf.h / 2, 48) || Math.abs(roadX(fy + sf.h / 2) - (fx + sf.w / 2)) < 58) continue;
+      S.lake = L; sf.x = fx; sf.y = fy; break;
+    }
+    if (!S.lake) { S.lake = { x: 440, y: 470, rx: 40, ry: 26 }; sf.x = S.lake.x - S.lake.rx - 22 - sf.w; sf.y = S.lake.y - sf.h / 2; }
+    const Lk = S.lake; o.fillStyle = '#7c8a5c'; o.beginPath(); o.ellipse(Lk.x, Lk.y, Lk.rx + 5, Lk.ry + 5, 0, 0, 7); o.fill(); o.fillStyle = '#24506a'; o.beginPath(); o.ellipse(Lk.x, Lk.y, Lk.rx, Lk.ry, 0, 0, 7); o.fill();
+    o.strokeStyle = '#b9b2a2'; o.lineWidth = 12; o.beginPath(); o.moveTo(rx - 20, -5); o.bezierCurveTo(rx + 20, 170, rx - 20, 340, rx + 10, N + 5); o.stroke();
+    o.strokeStyle = 'rgba(255,255,255,.5)'; o.lineWidth = 1; o.setLineDash([6, 6]); o.stroke(); o.setLineDash([]);
+    S.field = sf; o.fillStyle = '#3f8f45'; o.fillRect(sf.x, sf.y, sf.w, sf.h); o.strokeStyle = 'rgba(255,255,255,.85)'; o.lineWidth = 1.2; o.strokeRect(sf.x + 3, sf.y + 3, sf.w - 6, sf.h - 6);
+    o.beginPath(); o.moveTo(sf.x + sf.w / 2, sf.y + 3); o.lineTo(sf.x + sf.w / 2, sf.y + sf.h - 3); o.stroke(); o.beginPath(); o.arc(sf.x + sf.w / 2, sf.y + sf.h / 2, 6, 0, 7); o.stroke();
+    // buildings along the road
+    const nb = 5 + ((R() * 5) | 0); let guard = 0;
+    while (S.buildings.length < nb && guard++ < 600) {
+      const y = 30 + R() * (N - 60), side = R() < .5 ? -1 : 1, bw = 14 + R() * 16, bh = 12 + R() * 14; const x = roadX(y) + side * (14 + R() * 26) - (side < 0 ? bw : 0);
+      const b = { x, y, w: bw, h: bh }; const cx = x + bw / 2, cy = y + bh / 2;
+      if (x < 4 || x + bw > N - 4 || nearRiver(cx, cy, 34) || Math.hypot((cx - Lk.x) / (Lk.rx + 22), (cy - Lk.y) / (Lk.ry + 22)) < 1) continue;
+      if (!(cx > sf.x + sf.w + 8 || cx < sf.x - 8 || cy > sf.y + sf.h + 8 || cy < sf.y - 8)) continue;
+      if (S.buildings.some(q => x < q.x + q.w + 6 && x + bw + 6 > q.x && y < q.y + q.h + 6 && y + bh + 6 > q.y)) continue;
+      S.buildings.push(b);
+    }
+    S.buildings.forEach(b => { o.fillStyle = 'rgba(0,0,0,.35)'; o.fillRect(b.x + 4, b.y + 4, b.w, b.h); o.fillStyle = R() < .5 ? '#b0553c' : '#c9c4b8'; o.fillRect(b.x, b.y, b.w, b.h); o.fillStyle = 'rgba(255,255,255,.15)'; o.fillRect(b.x, b.y, b.w, b.h / 2); });
+    // vehicles on road
+    const nc = 2 + ((R() * 4) | 0);
+    for (let k = 0; k < nc; k++) { const y = 20 + (k + R() * .6) * (N - 40) / nc; if (nearRiver(roadX(y), y, 24)) continue; const c = { x: roadX(y) - 3 + (R() < .5 ? -3 : 3), y, w: 6, h: 10 }; S.cars.push(c);
+      o.fillStyle = ['#e8e8e8', '#d23c3c', '#2f4f9a', '#1b1b1b'][(R() * 4) | 0]; o.fillRect(c.x, c.y, c.w, c.h); }
+    // tree clumps
+    for (let k = 0, g2 = 0; k < 9 && g2 < 300; g2++) { const p = { x: 20 + R() * (N - 40), y: 20 + R() * (N - 40) };
+      if (nearRiver(p.x, p.y, 26) || Math.abs(roadX(p.y) - p.x) < 24 || Math.hypot((p.x - Lk.x) / (Lk.rx + 16), (p.y - Lk.y) / (Lk.ry + 16)) < 1 || !far(p, S.buildings.map(b => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 })), 34) || !far(p, S.trees, 40)) continue;
+      if (p.x > sf.x - 14 && p.x < sf.x + sf.w + 14 && p.y > sf.y - 14 && p.y < sf.y + sf.h + 14) continue;
+      const cl = { x: p.x, y: p.y, r: 9 + R() * 8 }; S.trees.push(cl); k++;
+      for (let m = 0; m < 9; m++) { const a = R() * 7, d = R() * cl.r; o.fillStyle = 'rgba(0,0,0,.25)'; o.beginPath(); o.arc(p.x + Math.cos(a) * d + 2, p.y + Math.sin(a) * d + 2, 4 + R() * 3, 0, 7); o.fill(); o.fillStyle = ['#244a26', '#2e5a2c', '#1f3f22'][m % 3]; o.beginPath(); o.arc(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 4 + R() * 3, 0, 7); o.fill(); } }
+    // land-use by pixel class
+    const d = o.getImageData(0, 0, N, N).data; let veg = 0, water = 0, built = 0;
+    for (let i = 0; i < d.length; i += 16) { const r = d[i], g = d[i + 1], b = d[i + 2]; if (b > r + 10 && b >= g) water++; else if (g >= r && g > b) veg++; else if (Math.abs(r - g) < 14 && Math.abs(g - b) < 22 && r > 150) built++; else veg++; }
+    const tot = d.length / 16; S.lu = { veg: veg / tot, water: water / tot, built: built / tot };
+    // haze/vignette for a sensor look
+    const gr = o.createRadialGradient(N / 2, N / 2, N * .3, N / 2, N / 2, N * .75); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.28)'); o.fillStyle = gr; o.fillRect(0, 0, N, N);
+    boxes = [];
+  }
+  function draw(t){
+    const { ctx, w } = fit(cv); const s = w / N; ctx.drawImage(off, 0, 0, w, w);
+    ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillText(`TILE ${seed.toString(16).toUpperCase().padStart(4, '0')} · 0.5 m GSD · RGB`, 8, 14);
+    const k = Math.min(1, (performance.now() - boxT) / 650);
+    boxes.forEach((b, i) => {
+      const kk = Math.max(0, Math.min(1, k * 1.6 - i * .08)); if (!kk) return;
+      const x = b.x * s, y = b.y * s, bw = b.w * s, bh = b.h * s; ctx.strokeStyle = b.col; ctx.lineWidth = 2;
+      ctx.globalAlpha = kk; ctx.strokeRect(x - (1 - kk) * 8, y - (1 - kk) * 8, bw + (1 - kk) * 16, bh + (1 - kk) * 16);
+      if (b.label) { const tw = ctx.measureText(b.label).width + 8; ctx.fillStyle = b.col; ctx.fillRect(x - 1, y - 15, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(b.label, x + 3, y - 4); }
+      ctx.globalAlpha = 1;
+    });
+  }
+  const bb = (o2, label, col = '#ffb547') => ({ x: o2.x, y: o2.y, w: o2.w, h: o2.h, label, col });
+  function intent(q){
+    q = q.toLowerCase();
+    const count = /how many|count|number of/.test(q);
+    if (/build|house|roof|structure/.test(q)) return 'buildings';
+    if (/car|vehicle|truck|traffic/.test(q)) return 'cars';
+    if (/left of|west of|beside the lake|next to the lake/.test(q)) return 'leftlake';
+    if (/water|river|lake|pond/.test(q)) return 'water';
+    if (/tree|forest|wood|vegetation/.test(q)) return 'trees';
+    if (/land ?use|land cover|main use|dominant|agricultur|crop|farm/.test(q)) return 'landuse';
+    if (/road|street|highway/.test(q)) return 'road';
+    if (/field|sport|pitch|stadium/.test(q)) return 'field';
+    return count ? 'unknown-count' : 'unknown';
+  }
+  function respond(q){
+    if (busy || !q.trim()) return; busy = true;
+    const it = intent(q), L = S.lake; let a = '', bx = [];
+    const box = (x, y, w2, h2, l, c) => ({ x, y, w: w2, h: h2, label: l, col: c || '#ffb547' });
+    if (it === 'buildings') { a = `${S.buildings.length} buildings, clustered along the road.`; bx = S.buildings.map(b => bb({ x: b.x - 2, y: b.y - 2, w: b.w + 4, h: b.h + 4 }, 'building')); }
+    else if (it === 'cars') { a = S.cars.length ? `${S.cars.length} vehicle${S.cars.length > 1 ? 's' : ''} on the road.` : 'No vehicles are visible.'; bx = S.cars.map(c => bb({ x: c.x - 3, y: c.y - 3, w: c.w + 6, h: c.h + 6 }, 'vehicle')); }
+    else if (it === 'water') { const xs = S.river.map(p => p.x), ys = S.river.map(p => p.y); a = 'Yes. A river crosses the tile from west to east, and there is a lake.'; bx = [box(0, Math.min(...ys) - 14, N, Math.max(...ys) - Math.min(...ys) + 28, 'river', '#46d4ff'), box(L.x - L.rx - 6, L.y - L.ry - 6, (L.rx + 6) * 2, (L.ry + 6) * 2, 'lake', '#46d4ff')]; }
+    else if (it === 'leftlake') { a = 'A sports field, directly west of the lake.'; bx = [bb({ x: S.field.x - 3, y: S.field.y - 3, w: S.field.w + 6, h: S.field.h + 6 }, 'sports field'), box(L.x - L.rx - 6, L.y - L.ry - 6, (L.rx + 6) * 2, (L.ry + 6) * 2, 'lake', '#46d4ff')]; }
+    else if (it === 'trees') { a = `Yes. ${S.trees.length} clusters of trees, scattered between the fields.`; bx = S.trees.map(c => box(c.x - c.r - 6, c.y - c.r - 6, (c.r + 6) * 2, (c.r + 6) * 2, 'trees', '#3ee0a1')); }
+    else if (it === 'landuse') { a = `Agricultural. Cropland and vegetation cover about ${Math.round(S.lu.veg * 100)}% of the tile, water about ${Math.round(S.lu.water * 100)}%, and built-up land the rest.`; bx = []; }
+    else if (it === 'road') { a = 'Yes. One road runs north to south and crosses the river on a bridge.'; bx = [box(S.road - 50, 0, 100, N, 'road', '#46d4ff')]; }
+    else if (it === 'field') { a = 'Yes. There is one sports field, west of the lake.'; bx = [bb({ x: S.field.x - 3, y: S.field.y - 3, w: S.field.w + 6, h: S.field.h + 6 }, 'sports field')]; }
+    else { a = 'This demo understands questions about buildings, vehicles, water, trees, roads, land use and what lies left of the lake. The real model handles open-ended questions.'; }
+    const steps = ['› encoding tile with the Qwen2.5-VL vision encoder', '› generating answer (QLoRA-adapted language model)', it.startsWith('unknown') || it === 'landuse' ? '› no objects to ground' : `› grounding with Grounding DINO · ${bx.length} box${bx.length === 1 ? '' : 'es'}`];
+    ans.innerHTML = `<span class="q">Q: ${q.replace(/[<>&]/g, '')}</span>\n`; boxes = []; redraw();
+    let i = 0;
+    const next = () => {
+      if (i < steps.length) { ans.insertAdjacentHTML('beforeend', `<span class="m">${steps[i++]}</span>\n`); return setTimeout(next, reduce ? 0 : 320); }
+      boxes = bx; boxT = performance.now(); const span = document.createElement('span'); span.className = 'a'; ans.append('A: '); ans.append(span);
+      let c = 0; const ty = () => { c += 2; span.textContent = a.slice(0, c); if (c < a.length && !reduce) setTimeout(ty, 14); else { span.textContent = a; busy = false; } }; ty();
+      animateBoxes();
+    };
+    next();
+  }
+  function animateBoxes(){ const st = performance.now(); const f = () => { redraw(); if (performance.now() - st < 900) requestAnimationFrame(f); }; f(); }
+  function redraw(){ draw(); }
+  gen();
+  addLoop(cv, () => draw());
+  $$('#vqChips .qchip').forEach(b => b.addEventListener('click', () => { $('#vqQ').value = b.textContent; respond(b.textContent); }));
+  $('#vqForm').addEventListener('submit', e => { e.preventDefault(); respond($('#vqQ').value); });
+  $('#vqNew').onclick = () => { seed++; gen(); ans.innerHTML = '<span class="m">› new tile loaded. Ask a question.</span>'; redraw(); };
+})();
+
+/* ---------- skills ---------- */
+const WHERE = {
+  emergi: { n: 'EmergiSense', d: 'Multimodal ambulance detection · SIH winner', href: '#projects', tab: 't-emergi' },
+  solview: { n: 'SolView', d: 'Rooftop solar potential · ISRO SAC', href: '#projects', tab: 't-solview' },
+  rsvqa: { n: 'RSVQA dissertation', d: 'VQA for remote sensing · QUB', href: '#projects', tab: 't-rsvqa' },
+  isro: { n: 'ISRO Space Applications Centre', d: 'CV & GIS Researcher · 2022–23', href: '#experience' },
+  avalara: { n: 'Avalara', d: 'Implementation Consultant · 2024–25', href: '#experience' },
+  msc: { n: 'MSc Data Science & AI', d: "Queen's University Belfast", href: '#education' },
+  btech: { n: 'B.Tech ECE', d: 'Vishwakarma Institute of Technology', href: '#education' },
+};
+const SK = [
+  ['Languages & data', [['Python', 'emergi solview rsvqa isro'], ['C / C++', 'btech'], ['SQL / SQL Server', 'avalara'], ['Linux', 'emergi']]],
+  ['Machine learning & AI', [['Machine Learning', 'solview isro msc btech'], ['Deep Learning', 'emergi rsvqa'], ['Computer Vision', 'emergi solview rsvqa isro btech'], ['Object Detection', 'emergi rsvqa'], ['Vision-Language Models', 'rsvqa'], ['PEFT / QLoRA', 'rsvqa'], ['NLP', 'rsvqa'], ['Statistical Analysis', 'msc']]],
+  ['Frameworks & hardware', [['PyTorch', 'emergi rsvqa'], ['Hugging Face Transformers', 'rsvqa'], ['OpenCV', 'emergi solview'], ['Grounding DINO', 'rsvqa'], ['NVIDIA Jetson Nano', 'emergi'], ['IoT', 'emergi'], ['Cloud Technologies', '']]],
+  ['Geospatial', [['Remote Sensing', 'solview rsvqa isro'], ['GIS', 'solview isro btech'], ['ArcGIS Pro', 'solview isro'], ['DEM analysis', 'solview']]],
+  ['Data & delivery', [['Data Visualization', 'msc'], ['Data Mining', 'msc'], ['Performance Analysis', 'emergi'], ['Quality Testing', 'avalara'], ['Troubleshooting', 'avalara'], ['Automation', 'avalara'], ['Product Development', 'emergi']]],
+  ['Enterprise tools', [['AvaTax', 'avalara'], ['Salesforce', 'avalara'], ['Jira', 'avalara'], ['Gainsight', 'avalara']]],
+  ['Ways of working', [['Research & Development', 'isro solview rsvqa'], ['Project Leadership', 'emergi'], ['Teamwork', 'emergi avalara'], ['Communication', 'emergi avalara'], ['Problem-Solving', ''], ['Adaptability', ''], ['Creativity', ''], ['Time Management', '']]],
+];
+const sg = $('#sgroups'), usage = $('#usage'); let selSkill = null;
+SK.forEach(([g, list]) => {
+  const d = document.createElement('div'); d.className = 'sgroup'; d.innerHTML = `<h3>${g}</h3><div class="chips"></div>`;
+  list.forEach(([n, w]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'skill'; b.textContent = n; b.dataset.where = w; b.setAttribute('aria-pressed', 'false'); b.onclick = () => pickSkill(b); d.lastChild.append(b); });
+  sg.append(d);
+});
+function pickSkill(b){
+  selSkill = b; $$('.skill').forEach(x => { x.setAttribute('aria-pressed', x === b); });
+  const ws = b.dataset.where.split(' ').filter(Boolean);
+  $$('.skill').forEach(x => { const xs = x.dataset.where.split(' '); x.classList.toggle('dim', x !== b && !ws.some(w => xs.includes(w))); });
+  usage.innerHTML = `<span class="label">Skill trace</span><h3>${b.textContent}</h3>` + (ws.length
+    ? `<div class="where">${ws.map(w => `<a href="${WHERE[w].href}" data-tab="${WHERE[w].tab || ''}"><b>${WHERE[w].n}</b><span>${WHERE[w].d}</span></a>`).join('')}</div><p class="none">Related skills stay lit on the left.</p>`
+    : `<p class="none">Listed on my CV as a working skill. Ask me about it.</p>`);
+  $$('a[data-tab]', usage).forEach(a => a.addEventListener('click', () => { if (a.dataset.tab) selectTab($('#' + a.dataset.tab)); }));
+}
+pickSkill($$('.skill').find(b => b.textContent === 'Computer Vision'));
+
+/* ---------- console ---------- */
+const out = $('#termOut'), tin = $('#termIn'); const hist = []; let hi = 0;
+const esc = s => s.replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+const CMDS = {
+  help: () => `<span class="k">commands</span>\n  whoami      short bio\n  experience  roles and dates\n  projects    what I've built\n  skills      core stack\n  education   degrees\n  awards      highlights\n  papers      publications &amp; patent\n  contact     how to reach me\n  goto &lt;section&gt;  scroll to a section\n  theme       toggle light/dark\n  clear       clear the screen`,
+  whoami: () => `<span class="g">Atharva Uday Kalase</span> · data scientist\nMSc Data Science &amp; AI @ Queen's University Belfast (2026–27)\n2+ yrs: ISRO Space Applications Centre, Avalara\nfocus: computer vision · remote sensing · multimodal &amp; geospatial ML`,
+  experience: () => `<span class="k">2024-03 → 2025-05</span>  Implementation Consultant · Avalara, Pune\n<span class="k">2022-07 → 2023-07</span>  Computer Vision &amp; GIS Researcher · ISRO SAC, Ahmedabad`,
+  projects: () => `<span class="g">EmergiSense</span>  audio+video ambulance detection · 98% · Jetson Nano · patent\n<span class="g">SolView</span>      rooftop solar potential from satellite + DEM · 93%\n<span class="g">RSVQA</span>        VQA for satellite imagery · Qwen2.5-VL + QLoRA + Grounding DINO`,
+  skills: () => `python · pytorch · opencv · hugging face · sql · c/c++ · linux\ncomputer vision · deep learning · object detection · VLMs · NLP\nremote sensing · GIS · ArcGIS Pro · DEM · jetson nano`,
+  education: () => `<span class="k">2026–27</span>  MSc Data Science &amp; AI · Queen's University Belfast\n<span class="k">2019–23</span>  B.Tech ECE · Vishwakarma Institute of Technology, Pune · CGPA 8.65`,
+  awards: () => `★ Smart India Hackathon 2022 · Rank 1 nationwide (team lead)\n★ Entrepreneurship Excellence Award 2025\n★ Best Presentation · ICICEEE-22\n★ Avalara: Bull's Eye ×4 · MVP ×2 · Orange Ambassador · 3rd in Q3'24 audit`,
+  papers: () => `[1] Solar Potential Analysis Over Indian Cities Using High-Resolution Satellite Imagery and DEM\n    J. Indian Soc. Remote Sensing, 2025 · <a href="https://link.springer.com/article/10.1007/s12524-025-02212-0" target="_blank" rel="noopener">springer ↗</a>\n[2] Multimodal Detection of Ambulance Using Jetson Nano\n    ICICEEE, AIP Conf. Proc., 2023 · <a href="https://pubs.aip.org/aip/acp/article/2717/1/030003/2899680/Multimodal-detection-of-ambulance-using-Jetson" target="_blank" rel="noopener">aip ↗</a>\n[P] Indian patent issued · EmergiSense`,
+  contact: () => `email     atharvauk1000@gmail.com\nphone     +44 7352 664083\nlinkedin  <a href="https://www.linkedin.com/in/atharva-kalase" target="_blank" rel="noopener">linkedin.com/in/atharva-kalase</a>\ngithub    <a href="https://github.com/Atharvauk" target="_blank" rel="noopener">github.com/Atharvauk</a>`,
+  theme: () => { $('#themeBtn').click(); return `theme set to ${isDark() ? 'dark' : 'light'}`; },
+  clear: () => { out.innerHTML = ''; return null; },
+  ls: () => 'about  experience  projects  research  skills  education  awards  contact',
+  sudo: a => /hire/.test(a) ? `<span class="g">[sudo] permission granted.</span>\nScroll to contact, or email atharvauk1000@gmail.com` : 'sudo: try "sudo hire atharva"',
+  date: () => new Date().toString(),
+  goto: a => { const id = (a || '').trim(); if (document.getElementById(id) && id !== 'top') { document.getElementById(id).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); return `→ #${id}`; } return 'usage: goto about | experience | projects | research | skills | education | awards | contact'; },
+};
+function print(html){ if (html === null) return; out.insertAdjacentHTML('beforeend', html + '\n'); out.scrollTop = out.scrollHeight; }
+function run(line, echo = true){
+  const [c, ...rest] = line.trim().split(/\s+/); if (!c) return;
+  if (echo) print(`<span class="p">atharva@belfast:~$</span> ${esc(line)}`);
+  const f = CMDS[c.toLowerCase()]; print(f ? f(rest.join(' ')) : `<span class="m">command not found: ${esc(c)}. type help</span>`);
+}
+print('<span class="m">Last login: ' + new Date().toDateString() + ' on ttys001 · Belfast</span>');
+run('whoami');
+print('<span class="m">type help for commands</span>');
+tin.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { const v = tin.value; if (v.trim()) { hist.push(v); hi = hist.length; } run(v); tin.value = ''; }
+  else if (e.key === 'ArrowUp') { if (hi > 0) tin.value = hist[--hi]; e.preventDefault(); }
+  else if (e.key === 'ArrowDown') { hi = Math.min(hist.length, hi + 1); tin.value = hist[hi] || ''; e.preventDefault(); }
+  else if (e.key === 'Tab') { const m = Object.keys(CMDS).find(k => tin.value && k.startsWith(tin.value)); if (m) { tin.value = m; e.preventDefault(); } }
+});
+['help', 'projects', 'papers', 'awards', 'contact', 'sudo hire atharva'].forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.className = 'qchip'; b.textContent = c; b.onclick = () => run(c); $('#termHints').append(b); });
+
+/* ---------- copy buttons ---------- */
+$$('.copy').forEach(b => b.addEventListener('click', () => {
+  const v = b.dataset.copy; const done = () => { b.textContent = 'Copied'; b.classList.add('done'); setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('done'); }, 1600); };
+  const fallback = () => { const el = b.parentElement.querySelector('.v'); const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Selected'; setTimeout(() => b.textContent = 'Copy', 1600); };
+  try { navigator.clipboard.writeText(v).then(done, fallback); } catch (e) { fallback(); }
+}));
+
+document.fonts && document.fonts.ready.then(redrawAll);
+redrawAll();
+if (!reduce) requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
