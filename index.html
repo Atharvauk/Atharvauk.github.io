@@ -227,6 +227,12 @@ h1.name .l2{color:var(--cyan)}
 .legend i{display:block;width:120px;height:8px;border-radius:2px;background:linear-gradient(90deg,#1b2a6b,#7a2c8f,#e0573a,#ffb547,#fff3b0)}
 .tip{position:absolute;pointer-events:none;z-index:5;font:400 11.5px/1.5 var(--f-mono);background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--line);color:var(--fg);padding:8px 10px;border-radius:5px;white-space:nowrap;box-shadow:0 8px 24px var(--shade)}
 .tip b{color:var(--amber);font-weight:500}
+.emres{font:400 12px/1.5 var(--f-mono);color:var(--muted)}
+.emres b{color:var(--fg);font-weight:500}.emres b.ok{color:var(--ok)}
+.elog{list-style:none;margin:0;padding:8px 10px;display:grid;align-content:start;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;font:400 11.5px/1.45 var(--f-mono);color:var(--muted);min-height:100px}
+.elog li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px}
+.elog li span{color:var(--faint);font-variant-numeric:tabular-nums}
+.elog li.g{color:var(--ok)}.elog li.h{color:var(--amber)}
 .qa{display:grid;gap:10px}
 .qchips{display:flex;flex-wrap:wrap;gap:6px}
 .qchip{font:500 12px var(--f-mono);padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);cursor:pointer}
@@ -507,7 +513,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
     </div>
 
     <div class="tabs" role="tablist" aria-label="Projects">
-      <button class="tab" role="tab" id="t-emergi" aria-controls="p-emergi" aria-selected="true"><b>EmergiSense</b><small>multimodal ambulance detection</small></button>
+      <button class="tab" role="tab" id="t-emergi" aria-controls="p-emergi" aria-selected="true"><b>EmergiSense</b><small>ambulance escort system</small></button>
       <button class="tab" role="tab" id="t-solview" aria-controls="p-solview" aria-selected="false" tabindex="-1"><b>SolView</b><small>rooftop solar potential · ISRO</small></button>
       <button class="tab" role="tab" id="t-rsvqa" aria-controls="p-rsvqa" aria-selected="false" tabindex="-1"><b>RSVQA</b><small>MSc dissertation · VLMs</small></button>
     </div>
@@ -517,32 +523,34 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
       <div class="info">
         <span class="label" style="color:var(--amber)">Smart India Hackathon 2022 · Rank 1 · Patent issued</span>
         <h3>EmergiSense</h3>
-        <p class="tagline">A multimodal deep learning system that hears and sees an approaching ambulance at a traffic signal, then clears its lane.</p>
+        <p class="tagline">An ambulance escort system: traffic signals that hear and see an approaching ambulance, turn green for it, and hand it on to the next junction so the route clears ahead of it.</p>
         <div class="kpis">
           <div class="kpi"><b>98%</b><span>detection accuracy</span></div>
           <div class="kpi"><b>30+ s</b><span>emergency response time saved</span></div>
           <div class="kpi"><b>Edge</b><span>real-time on Jetson Nano</span></div>
         </div>
         <ul>
-          <li>Fuses audio (siren) and video (vehicle) evidence to detect ambulances at signals.</li>
+          <li>Each junction fuses audio (siren) and video (vehicle) evidence to confirm an ambulance before overriding its signal.</li>
+          <li>Escort hand-off: once the ambulance clears a junction, the next signal on its route turns green early to flush its queue, opening a green corridor to the hospital.</li>
           <li>Inference deployed on an NVIDIA Jetson Nano for real-time roadside operation, built in Python, PyTorch and OpenCV.</li>
           <li>Led the team to Rank 1 nationwide at the Smart India Hackathon; pitched to Maharashtra Police, AICTE and the BHAU Institute, COEP Pune. One national patent issued.</li>
         </ul>
-        <div class="chips"><span class="chip">Python</span><span class="chip">PyTorch</span><span class="chip">OpenCV</span><span class="chip">Audio + video fusion</span><span class="chip">NVIDIA Jetson Nano</span></div>
+        <div class="chips"><span class="chip">Python</span><span class="chip">PyTorch</span><span class="chip">OpenCV</span><span class="chip">Audio + video fusion</span><span class="chip">Signal pre-emption</span><span class="chip">NVIDIA Jetson Nano</span></div>
       </div>
       <div class="demo">
-        <div class="demo-top"><span class="label">Junction feed · simulation</span><span class="hint">dispatch an ambulance and watch the signal</span></div>
-        <div class="screen bracket"><canvas id="emCanvas" style="aspect-ratio:16/10.5" aria-label="Simulated traffic junction with audio waveform"></canvas></div>
+        <div class="demo-top"><span class="label">Escort route · simulation</span><span class="hint">dispatch, then try it with the escort off</span></div>
+        <div class="screen bracket"><canvas id="emCanvas" style="aspect-ratio:16/10.5" aria-label="Simulated route with three signalled junctions, an ambulance and a hospital"></canvas></div>
         <div class="meters">
-          <div class="meter"><span>Audio · siren</span><b id="emA">0.04</b><div class="bar"><i id="emAb"></i></div></div>
-          <div class="meter"><span>Video · ambulance</span><b id="emV">0.00</b><div class="bar"><i id="emVb"></i></div></div>
-          <div class="meter fuse" id="emF"><span>Fusion decision</span><b id="emD">Normal cycle</b></div>
+          <div class="meter"><span id="emAl">Audio · siren</span><b id="emA">0.04</b><div class="bar"><i id="emAb"></i></div></div>
+          <div class="meter"><span id="emVl">Video · ambulance</span><b id="emV">0.00</b><div class="bar"><i id="emVb"></i></div></div>
+          <div class="meter fuse" id="emF"><span>Green corridor</span><b id="emD">Normal cycle</b></div>
         </div>
         <div class="ctrls">
           <button class="ctrl-btn go" id="emGo" type="button">Dispatch ambulance</button>
-          <button class="ctrl-btn" id="emNo" type="button" aria-pressed="false">Detection: on</button>
-          <span class="hint mono" id="emSaved" style="font-size:12px;color:var(--muted)"></span>
+          <button class="ctrl-btn" id="emMode" type="button" aria-pressed="true">Escort: on</button>
         </div>
+        <p class="emres" id="emRes">Trip time appears here when the ambulance reaches the hospital.</p>
+        <ol class="elog" id="emLog" aria-live="polite"><li class="m"><span>00.0 s</span>Escort armed on J1, J2 and J3 · waiting for dispatch</li></ol>
       </div>
     </div>
 
@@ -927,111 +935,159 @@ tabs.forEach((tb, i) => {
   tb.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; selectTab(n); n.focus(); } });
 });
 
-/* ---------- EmergiSense: junction simulation ---------- */
+/* ---------- EmergiSense: ambulance escort along a 3-junction route ---------- */
 (() => {
   const cv = $('#emCanvas'); const R = rng(11);
   const carCols = ['#9aa6bd', '#5d7fb8', '#c4c9d4', '#7a8aa6', '#b56b5e', '#d9b45a', '#4f9a8a'];
-  let cars = [], cross = [], light = 'red', cycle = 0, amb = null, aConf = .04, vConf = 0, priority = false, wave = new Array(240).fill(0), wph = 0, detectOn = true, tDispatch = 0, saved = '';
-  const lane = .42, stopX = .63, roadTop = .3, roadBot = .54, crossL = .66, crossR = .8, scene = .64;
-  function mk(x, isAmb){ return { x, len: isAmb ? .085 : .055 + R() * .02, v: 0, col: carCols[(R() * carCols.length) | 0], amb: !!isAmb, conf: .9 + R() * .09 }; }
-  for (let i = 0; i < 5; i++) cars.push(mk(.55 - i * .085));
-  for (let i = 0; i < 3; i++) cross.push({ y: -.2 - i * .25, v: 0, col: carCols[(R() * carCols.length) | 0] });
-  $('#emGo').onclick = () => { if (amb) return; amb = mk(-.12, true); cars.push(amb); tDispatch = 0; saved = ''; $('#emGo').disabled = true; };
-  $('#emNo').onclick = () => { detectOn = !detectOn; $('#emNo').textContent = 'Detection: ' + (detectOn ? 'on' : 'off'); $('#emNo').setAttribute('aria-pressed', !detectOn); };
+  const lane = .42, roadTop = .3, roadBot = .54, scene = .64, HOSP = .95, CYCLE = 10, RED = 7;
+  const J = [.27, .55, .83].map((x, k) => ({ x, cl: x - .03, cr: x + .03, stop: x - .045, off: k * 3.3, light: 'red', prio: false, done: false, a: .04, v: 0,
+    cross: [0, 1].map(i => ({ y: -.2 - i * .3 - k * .1, v: 0, col: carCols[(k * 2 + i) % carCols.length] })) }));
+  let cars = [], amb = null, escort = true, clock = 0, trip = 0, arrived = false, wave = new Array(240).fill(0), wph = 0, events = [];
+  const results = { on: null, off: null };
+  function mk(x, isAmb){ return { x, len: isAmb ? .065 : .042 + R() * .014, v: 0, side: 0, col: carCols[(R() * carCols.length) | 0], amb: !!isAmb }; }
+  [.2, .14, .08, .47, .41, .75, .69].forEach(x => cars.push(mk(x)));
+  const fmt = s => (s < 10 ? '0' : '') + s.toFixed(1) + ' s';
+  function log(msg, cls = ''){
+    events.unshift(`<li class="${cls}"><span>${fmt(trip)}</span>${msg}</li>`); events = events.slice(0, 4);
+    $('#emLog').innerHTML = events.join('');
+  }
+  $('#emGo').onclick = () => {
+    if (amb) return; amb = mk(-.1, true); cars.push(amb); trip = 0; arrived = false;
+    J.forEach(j => { j.prio = false; j.done = false; }); events = [];
+    log(escort ? 'Ambulance dispatched · escort armed on 3 junctions' : 'Ambulance dispatched · escort off, normal signal timing', 'm');
+    $('#emGo').disabled = true; $('#emMode').disabled = true;
+  };
+  $('#emMode').onclick = e => { escort = !escort; e.currentTarget.textContent = 'Escort: ' + (escort ? 'on' : 'off'); e.currentTarget.setAttribute('aria-pressed', escort); };
+  const lightOf = j => j.prio ? 'green' : ((clock + j.off) % CYCLE < RED ? 'red' : 'green');
+  const active = () => amb ? J.find(j => !j.done) : null;
   function update(dt, t){
     if (!dt) return;
-    if (amb) tDispatch += dt;
-    // signal: normal cycle 6 s red / 4 s green for our lane, overridden by priority
-    if (amb && detectOn && aConf > .85 && vConf > .85 && amb.x < stopX + .05) priority = true;
-    if (priority && amb && amb.x > crossR + .02) priority = false;
-    if (priority) light = 'green'; else { cycle = (cycle + dt) % 10; light = cycle < 6 ? 'red' : 'green'; }
-    const vmax = .16; cars.sort((a, b) => b.x - a.x);
+    clock += dt; if (amb && !arrived) trip += dt;
+    // escort: release each junction once the ambulance clears it and hand off to the next one on the route
+    if (amb) J.forEach((j, k) => {
+      if (j.done || amb.x <= j.cr + .01) return;
+      j.done = true; j.prio = false;
+      if (escort && J[k + 1] && !J[k + 1].prio) { J[k + 1].prio = true; log(`J${k + 1} → J${k + 2} hand-off · pre-clearing the queue ahead`, 'h'); }
+    });
+    const A = active();
+    J.forEach(j => {
+      let at = .04 + .03 * Math.sin(t * 2 + j.x * 9), vt = 0;
+      if (escort && j === A) { const d = j.stop - (amb.x + amb.len); if (d < .6) at = .9 + .08 * Math.max(0, 1 - d / .6); if (d < .4 && amb.x + amb.len > .01) vt = .98; }
+      j.a += (at - j.a) * Math.min(1, dt * 2.5); j.v += (vt - j.v) * Math.min(1, dt * 3);
+      if (escort && j === A && !j.prio && j.a > .85 && j.v > .85) { j.prio = true; log(`J${J.indexOf(j) + 1} · siren ${j.a.toFixed(2)} + ambulance ${j.v.toFixed(2)} → priority green`, 'g'); }
+      j.light = lightOf(j);
+    });
+    // eastbound traffic stops at the next red signal or behind the car ahead
+    const vmax = .11; cars.sort((a, b) => b.x - a.x);
     cars.forEach((c, i) => {
-      let limit = Infinity; const front = c.x + c.len;
-      if (i > 0) limit = cars[i - 1].x - .018;
-      if (light !== 'green' && front <= stopX + .002) limit = Math.min(limit, stopX);
-      const d = limit - front; const target = Math.max(0, Math.min(vmax * (c.amb ? 1.25 : 1), d * 2.4));
+      const front = c.x + c.len, nj = J.find(j => front <= j.stop + .002);
+      // drivers pull over for the siren, unless they are held at a red light
+      if (!c.amb) { const held = c.v < .02 && nj && nj.light !== 'green', behind = amb && amb.x < c.x && c.x - (amb.x + amb.len) < .12;
+        c.side += ((behind && !held ? 1 : amb && amb.x > c.x - .02 && amb.x < c.x + c.len + .06 ? c.side : 0) - c.side) * Math.min(1, dt * 3); }
+      const lead = c.amb ? cars.slice(0, i).reverse().find(o => o.side < .5) : cars[i - 1];
+      let limit = lead ? lead.x - .012 : Infinity;
+      if (nj && nj.light !== 'green') limit = Math.min(limit, nj.stop);
+      const target = Math.max(0, Math.min(vmax * (c.amb ? 1.3 : 1), (limit - front) * 2.6));
       c.v += (target - c.v) * Math.min(1, dt * 4); c.x += c.v * dt;
+      if (c.x + c.len > limit) { c.x = Math.max(c.x - c.v * dt, limit - c.len); c.v = 0; } // never roll over the stop line or into the car ahead
     });
-    cars = cars.filter(c => c.x < 1.15);
-    if (amb && !cars.includes(amb)) { amb = null; $('#emGo').disabled = false; }
+    if (amb && !arrived && amb.x > HOSP) {
+      arrived = true; results[escort ? 'on' : 'off'] = trip;
+      log(`Arrived at hospital in ${trip.toFixed(1)} s · escort ${escort ? 'on' : 'off'}`, 'g');
+      const { on, off } = results;
+      $('#emRes').innerHTML = on != null && off != null
+        ? `Trip time · escort on <b>${on.toFixed(1)} s</b> · off <b>${off.toFixed(1)} s</b> · ${off > on ? `<b class="ok">${(off - on).toFixed(1)} s faster with escort</b>` : 'traffic was light that run, try again'}`
+        : `Trip time · escort ${escort ? 'on' : 'off'} <b>${trip.toFixed(1)} s</b> · switch escort ${escort ? 'off' : 'on'} and dispatch again to compare`;
+    }
+    cars = cars.filter(c => c.x < 1.12);
+    if (amb && !cars.includes(amb)) { amb = null; $('#emGo').disabled = false; $('#emMode').disabled = false; }
     const lastCar = cars.reduce((m, c) => Math.min(m, c.x), 1);
-    const queued = cars.filter(c => c.x < stopX).length;
-    if (lastCar > .02 && queued < 5 && R() < dt * .9 && !(amb && amb.x < .1)) cars.push(mk(-.08));
-    // cross traffic flows only while our lane is red
-    cross.forEach((c, i) => {
-      const stopY = roadTop - .06, go = light === 'red' && !priority;
-      let limit = Infinity; const lead = cross.filter(o => o.y > c.y).sort((a, b) => a.y - b.y)[0];
-      if (lead) limit = lead.y - .16; if (!go && c.y + .1 <= stopY + .002) limit = Math.min(limit, stopY - .1);
-      const target = Math.max(0, Math.min(.22, (limit - c.y) * 3)); c.v += (target - c.v) * Math.min(1, dt * 4); c.y += c.v * dt;
-      if (c.y > scene + .1) { c.y = -.25 - R() * .2; c.col = carCols[(R() * carCols.length) | 0]; }
-    });
-    // sensors
-    const near = amb ? Math.max(0, Math.min(1, (amb.x + .15) / .8)) : 0;
-    aConf += ((amb ? .88 + .1 * near : .04 + .03 * Math.sin(t * 2)) - aConf) * Math.min(1, dt * 2.5);
-    vConf += ((amb && amb.x + amb.len > .03 ? .98 : 0) - vConf) * Math.min(1, dt * 3);
-    if (priority && !saved && amb) saved = 'Priority green after ' + tDispatch.toFixed(1) + ' s from first siren';
-    // audio waveform
+    if (lastCar > .03 && cars.length < 11 && R() < dt * 1.1 && !(amb && amb.x < .1)) cars.push(mk(-.06));
+    // cross traffic at each junction flows while our lane is red
+    J.forEach(j => j.cross.forEach(c => {
+      const stopY = roadTop - .05, go = j.light === 'red';
+      let limit = Infinity; const lead = j.cross.filter(o => o.y > c.y).sort((a, b) => a.y - b.y)[0];
+      if (lead) limit = lead.y - .14; if (!go && c.y + .09 <= stopY + .002) limit = Math.min(limit, stopY - .09);
+      const target = Math.max(0, Math.min(.2, (limit - c.y) * 3)); c.v += (target - c.v) * Math.min(1, dt * 4); c.y += c.v * dt;
+      if (c.y > scene + .1) { c.y = -.25 - R() * .3; c.col = carCols[(R() * carCols.length) | 0]; }
+    }));
+    // siren as heard by the active junction's microphone
+    const d = A ? Math.max(0, A.stop - (amb.x + amb.len)) : 1, near = amb ? Math.max(.15, 1 - d / .6) : 0;
     for (let k = 0; k < 3; k++) {
       wph += amb ? (0.9 + .5 * Math.sin(t * 2.2)) : .35;
-      const noise = (R() - .5) * .18, siren = amb ? Math.sin(wph) * (.2 + .7 * near) : 0;
-      wave.push(noise + siren + .06 * Math.sin(t * 9 + k)); wave.shift();
+      wave.push((R() - .5) * .18 + (amb ? Math.sin(wph) * (.15 + .7 * near) : 0) + .06 * Math.sin(t * 9 + k)); wave.shift();
     }
   }
   function draw(t){
-    const { ctx, w, h } = fit(cv); const sh = h * scene;
+    const { ctx, w, h } = fit(cv); const sh = h * scene, ly = lane * h, LH = .07 * h, mid = (roadTop + roadBot) / 2 * h;
     ctx.fillStyle = '#0e1a14'; ctx.fillRect(0, 0, w, sh);
-    // verges
-    ctx.fillStyle = '#16261c'; for (let i = 0; i < 40; i++) { const x = (i * 97) % w, y = (i * 53) % (sh * .25); ctx.fillRect(x, y, 3, 3); ctx.fillRect((x * 1.3) % w, sh * .62 + (y % (sh * .3)), 3, 3); }
+    ctx.fillStyle = '#16261c'; for (let i = 0; i < 46; i++) { const x = (i * 97) % w, y = (i * 53) % (sh * .25); ctx.fillRect(x, y, 3, 3); ctx.fillRect((x * 1.3) % w, sh * .62 + (y % (sh * .3)), 3, 3); }
     // roads
-    ctx.fillStyle = '#262c37'; ctx.fillRect(0, roadTop * h, w, (roadBot - roadTop) * h); ctx.fillRect(crossL * w, 0, (crossR - crossL) * w, sh);
-    ctx.strokeStyle = '#e8d38a'; ctx.setLineDash([14, 12]); ctx.lineWidth = 2; ctx.beginPath();
-    ctx.moveTo(0, (roadTop + roadBot) / 2 * h); ctx.lineTo(crossL * w, (roadTop + roadBot) / 2 * h); ctx.moveTo(crossR * w, (roadTop + roadBot) / 2 * h); ctx.lineTo(w, (roadTop + roadBot) / 2 * h); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#e8eef8'; ctx.fillRect(stopX * w + 2, ((roadTop + roadBot) / 2) * h + 2, 3, (roadBot - (roadTop + roadBot) / 2) * h - 4);
-    // crossings stripes
-    ctx.fillStyle = 'rgba(232,238,248,.5)'; for (let y = roadTop * h + 4; y < roadBot * h - 4; y += 9) ctx.fillRect(crossL * w - 12, y, 9, 5);
-    // cross traffic (southbound)
-    cross.forEach(c => { const x = (crossL + .035) * w, y = c.y * h; ctx.fillStyle = c.col; ctx.fillRect(x, y, .035 * w, .1 * h); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + 2, y + .055 * h, .035 * w - 4, .02 * h); });
-    // eastbound cars + detections
+    ctx.fillStyle = '#262c37'; ctx.fillRect(0, roadTop * h, w, (roadBot - roadTop) * h);
+    J.forEach(j => ctx.fillRect(j.cl * w, 0, (j.cr - j.cl) * w, sh));
+    ctx.strokeStyle = '#e8d38a'; ctx.setLineDash([12, 10]); ctx.lineWidth = 2; ctx.beginPath();
+    [0, ...J.map(j => j.cr)].forEach((x0, i) => { const x1 = J[i] ? J[i].cl : 1; ctx.moveTo(x0 * w, mid); ctx.lineTo(x1 * w, mid); }); ctx.stroke(); ctx.setLineDash([]);
+    // green corridor: our lane from the ambulance to the furthest junction holding green for it
+    const A = active();
+    if (amb && escort) {
+      const far = [...J].reverse().find(j => j.prio && !j.done);
+      if (far && far.cr > amb.x) { const g = ctx.createLinearGradient(amb.x * w, 0, far.cr * w, 0); g.addColorStop(0, 'rgba(62,224,161,.3)'); g.addColorStop(1, 'rgba(62,224,161,.06)');
+        ctx.fillStyle = g; ctx.fillRect(amb.x * w, mid + 2, (far.cr - amb.x) * w, roadBot * h - mid - 4); }
+    }
+    J.forEach((j, k) => {
+      ctx.fillStyle = 'rgba(232,238,248,.5)'; for (let y = roadTop * h + 4; y < roadBot * h - 4; y += 9) ctx.fillRect(j.cl * w - 10, y, 7, 5);
+      ctx.fillStyle = '#e8eef8'; ctx.fillRect(j.stop * w + 1, mid + 2, 3, roadBot * h - mid - 4);
+      j.cross.forEach(c => { const x = (j.x + .002) * w, y = c.y * h; ctx.fillStyle = c.col; ctx.fillRect(x, y, .026 * w, .09 * h); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + 2, y + .05 * h, .026 * w - 4, .018 * h); });
+      // signal head + label
+      const sx = j.stop * w - 14, sy = roadBot * h + 6;
+      if (j.prio) { ctx.fillStyle = 'rgba(62,224,161,.18)'; ctx.beginPath(); ctx.arc(sx + 6, sy + 22, 20 + 3 * Math.sin(t * 6), 0, 7); ctx.fill(); }
+      ctx.fillStyle = '#0a0e16'; ctx.fillRect(sx, sy, 12, 30); ctx.strokeStyle = '#3a4560'; ctx.strokeRect(sx, sy, 12, 30);
+      ctx.fillStyle = j.light === 'red' ? '#ff4b5c' : '#3a1d24'; ctx.beginPath(); ctx.arc(sx + 6, sy + 8, 4, 0, 7); ctx.fill();
+      ctx.fillStyle = j.light === 'green' ? '#3ee0a1' : '#173328'; ctx.beginPath(); ctx.arc(sx + 6, sy + 22, 4, 0, 7); ctx.fill();
+      ctx.font = '600 10px "JetBrains Mono", monospace'; ctx.fillStyle = j.prio ? '#3ee0a1' : 'rgba(232,238,248,.7)';
+      ctx.fillText(`J${k + 1}` + (j.prio ? ' ESCORT' : ''), sx + 17, sy + 12);
+      if (escort && j === A) { ctx.fillStyle = 'rgba(255,181,71,.9)'; ctx.font = '500 9px "JetBrains Mono", monospace'; ctx.fillText('CAM+MIC ●', sx + 17, sy + 25); }
+    });
+    // hospital at the end of the route
+    const hx = (HOSP + .005) * w, hy = .07 * h;
+    ctx.fillStyle = '#e8eef8'; ctx.fillRect(hx - 18, hy, 36, .16 * h); ctx.fillStyle = '#e8394a'; ctx.fillRect(hx - 3, hy + 6, 6, 18); ctx.fillRect(hx - 9, hy + 12, 18, 6);
+    ctx.font = '600 9px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(232,238,248,.75)'; ctx.fillText('HOSPITAL', hx - 24, hy - 4);
+    // eastbound traffic
     ctx.font = '500 10px "JetBrains Mono", monospace';
-    let labelEnd = -1e9; // skip car labels that would collide with the previous one
-    [...cars].sort((a, b) => a.x - b.x).forEach(c => {
-      const x = c.x * w, y = lane * h, L = c.len * w, H = .07 * h;
-      ctx.fillStyle = c.amb ? '#f4f6fb' : c.col; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, L, H, 4) : ctx.rect(x, y, L, H); ctx.fill();
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + L * .62, y + 3, L * .18, H - 6);
-      if (c.amb) {
-        ctx.fillStyle = '#e8394a'; ctx.fillRect(x + L * .25, y + H / 2 - 2, L * .22, 4); ctx.fillRect(x + L * .34, y + H / 2 - 8, 4, 16);
-        const on = Math.floor(t * 8) % 2; ctx.fillStyle = on ? '#ff3b4d' : '#3b7bff'; ctx.fillRect(x + L * .5, y - 1, 5, 4); ctx.fillStyle = on ? '#3b7bff' : '#ff3b4d'; ctx.fillRect(x + L * .5, y + H - 3, 5, 4);
-        ctx.fillStyle = on ? 'rgba(255,59,77,.18)' : 'rgba(59,123,255,.18)'; ctx.beginPath(); ctx.arc(x + L * .5, y + H / 2, 26, 0, 7); ctx.fill();
-      }
-      if (detectOn && x > -L && x < w) {
-        const col = c.amb ? '#ffb547' : 'rgba(70,212,255,.55)'; ctx.strokeStyle = col; ctx.lineWidth = c.amb ? 2 : 1; ctx.strokeRect(x - 3, y - 3, L + 6, H + 6);
-        const lbl = c.amb ? `ambulance ${vConf.toFixed(2)}` : `car ${c.conf.toFixed(2)}`;
-        const tw = ctx.measureText(lbl).width + 8;
-        if (c.amb || x - 3 > labelEnd + 4) { ctx.fillStyle = col; ctx.fillRect(x - 3, y - 17, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(lbl, x + 1, y - 6); labelEnd = x - 3 + tw; }
+    [...cars].sort((a, b) => a.amb - b.amb).forEach(c => {
+      const x = c.x * w, L = c.len * w, cy = ly + c.side * .045 * h;
+      ctx.fillStyle = c.amb ? '#f4f6fb' : c.col; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, cy, L, LH, 4) : ctx.rect(x, cy, L, LH); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + L * .62, cy + 3, L * .18, LH - 6);
+      if (!c.amb) return;
+      ctx.fillStyle = '#e8394a'; ctx.fillRect(x + L * .22, ly + LH / 2 - 2, L * .24, 4); ctx.fillRect(x + L * .32, ly + LH / 2 - 7, 4, 14);
+      const on = Math.floor(t * 8) % 2; ctx.fillStyle = on ? '#ff3b4d' : '#3b7bff'; ctx.fillRect(x + L * .5, ly - 1, 5, 4); ctx.fillStyle = on ? '#3b7bff' : '#ff3b4d'; ctx.fillRect(x + L * .5, ly + LH - 3, 5, 4);
+      ctx.fillStyle = on ? 'rgba(255,59,77,.18)' : 'rgba(59,123,255,.18)'; ctx.beginPath(); ctx.arc(x + L * .5, ly + LH / 2, 24, 0, 7); ctx.fill();
+      if (escort && A && A.v > .5) {
+        const lbl = `ambulance ${A.v.toFixed(2)} · J${J.indexOf(A) + 1}`, tw = ctx.measureText(lbl).width + 8;
+        ctx.strokeStyle = '#ffb547'; ctx.lineWidth = 2; ctx.strokeRect(x - 3, ly - 3, L + 6, LH + 6);
+        ctx.fillStyle = '#ffb547'; ctx.fillRect(x - 3, ly - 17, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(lbl, x + 1, ly - 6);
       }
     });
-    // signal head
-    const sx = stopX * w - 4, sy = roadBot * h + 8;
-    ctx.fillStyle = '#0a0e16'; ctx.fillRect(sx, sy, 16, 40); ctx.strokeStyle = '#3a4560'; ctx.strokeRect(sx, sy, 16, 40);
-    ctx.fillStyle = light === 'red' ? '#ff4b5c' : '#3a1d24'; ctx.beginPath(); ctx.arc(sx + 8, sy + 11, 5.5, 0, 7); ctx.fill();
-    ctx.fillStyle = light === 'green' ? '#3ee0a1' : '#173328'; ctx.beginPath(); ctx.arc(sx + 8, sy + 29, 5.5, 0, 7); ctx.fill();
-    if (priority) { ctx.fillStyle = '#3ee0a1'; ctx.font = '600 11px "JetBrains Mono", monospace'; ctx.fillText('PRIORITY GREEN', sx + 22, sy + 33); }
-    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillText('CAM-01 · JETSON NANO · ' + (detectOn ? 'INFERENCE ON' : 'INFERENCE OFF'), 10, 16);
+    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.font = '500 10px "JetBrains Mono", monospace';
+    ctx.fillText('EMERGISENSE ESCORT · 3 JUNCTIONS · ' + (escort ? 'ARMED' : 'OFF'), 10, 16);
     // audio panel
     ctx.fillStyle = '#081019'; ctx.fillRect(0, sh, w, h - sh); ctx.strokeStyle = '#1c2945'; ctx.beginPath(); ctx.moveTo(0, sh + .5); ctx.lineTo(w, sh + .5); ctx.stroke();
-    const mid = sh + (h - sh) * .56, amp = (h - sh) * .36;
-    ctx.strokeStyle = 'rgba(70,212,255,.12)'; ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(w, mid); ctx.stroke();
+    const wm = sh + (h - sh) * .56, amp = (h - sh) * .36;
+    ctx.strokeStyle = 'rgba(70,212,255,.12)'; ctx.beginPath(); ctx.moveTo(0, wm); ctx.lineTo(w, wm); ctx.stroke();
     ctx.strokeStyle = amb ? '#ffb547' : '#46d4ff'; ctx.lineWidth = 1.4; ctx.beginPath();
-    wave.forEach((v, i) => { const x = i / (wave.length - 1) * w, y = mid - v * amp; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
-    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.fillText('MIC-01 · ' + (amb ? 'SIREN PATTERN DETECTED' : 'AMBIENT TRAFFIC'), 10, sh + 16);
+    wave.forEach((v, i) => { const x = i / (wave.length - 1) * w, y = wm - v * amp; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.fillText(`MIC · ${A ? 'J' + (J.indexOf(A) + 1) : 'ALL'} · ` + (amb ? 'SIREN PATTERN DETECTED' : 'AMBIENT TRAFFIC'), 10, sh + 16);
   }
   addLoop(cv, (t, dt) => {
     update(dt, t); draw(t);
-    $('#emA').textContent = aConf.toFixed(2); $('#emAb').style.width = (aConf * 100) + '%';
-    $('#emV').textContent = vConf.toFixed(2); $('#emVb').style.width = (vConf * 100) + '%';
-    $('#emF').classList.toggle('hot', priority); $('#emD').textContent = priority ? 'Priority green' : amb ? (detectOn ? 'Confirming…' : 'Not detected') : 'Normal cycle';
-    $('#emSaved').textContent = saved;
+    const A = active(), on = escort && !!A, src = A || J[0];
+    const a = on ? src.a : 0, v = on ? src.v : 0, jn = A ? ' · J' + (J.indexOf(A) + 1) : '';
+    $('#emAl').textContent = 'Audio · siren' + (on ? jn : ''); $('#emVl').textContent = 'Video · ambulance' + (on ? jn : '');
+    $('#emA').textContent = escort ? a.toFixed(2) : 'off'; $('#emAb').style.width = (a * 100) + '%';
+    $('#emV').textContent = escort ? v.toFixed(2) : 'off'; $('#emVb').style.width = (v * 100) + '%';
+    const greens = J.filter(j => j.prio).map(j => 'J' + (J.indexOf(j) + 1)), cleared = J.filter(j => j.done).length;
+    $('#emF').classList.toggle('hot', greens.length > 0 || arrived);
+    $('#emD').textContent = !amb ? 'Normal cycle' : arrived ? 'Arrived' : !escort ? 'No escort' : greens.length ? `${greens.join(' ')} green · ${cleared}/3` : cleared === 3 ? 'Route clear · 3/3' : `Confirming · ${cleared}/3`;
   });
 })();
 
@@ -1254,7 +1310,7 @@ tabs.forEach((tb, i) => {
 
 /* ---------- skills ---------- */
 const WHERE = {
-  emergi: { n: 'EmergiSense', d: 'Multimodal ambulance detection · SIH winner', href: '#projects', tab: 't-emergi' },
+  emergi: { n: 'EmergiSense', d: 'Ambulance escort system · SIH winner', href: '#projects', tab: 't-emergi' },
   solview: { n: 'SolView', d: 'Rooftop solar potential · ISRO SAC', href: '#projects', tab: 't-solview' },
   rsvqa: { n: 'RSVQA dissertation', d: 'VQA for remote sensing · QUB', href: '#projects', tab: 't-rsvqa' },
   isro: { n: 'ISRO Space Applications Centre', d: 'CV & GIS Researcher · 2022–23', href: '#experience' },
@@ -1295,7 +1351,7 @@ const CMDS = {
   help: () => `<span class="k">commands</span>\n  whoami      short bio\n  experience  roles and dates\n  projects    what I've built\n  skills      core stack\n  education   degrees\n  awards      highlights\n  papers      publications &amp; patent\n  contact     how to reach me\n  goto &lt;section&gt;  scroll to a section\n  theme       toggle light/dark\n  clear       clear the screen`,
   whoami: () => `<span class="g">Atharva Uday Kalase</span> · data scientist\nMSc Data Science &amp; AI @ Queen's University Belfast (2026–27)\n2+ yrs: ISRO Space Applications Centre, Avalara\nfocus: computer vision · remote sensing · multimodal &amp; geospatial ML`,
   experience: () => `<span class="k">2024-03 → 2025-05</span>  Implementation Consultant · Avalara, Pune\n<span class="k">2022-07 → 2023-07</span>  Computer Vision &amp; GIS Researcher · ISRO SAC, Ahmedabad`,
-  projects: () => `<span class="g">EmergiSense</span>  audio+video ambulance detection · 98% · Jetson Nano · patent\n<span class="g">SolView</span>      rooftop solar potential from satellite + DEM · 93%\n<span class="g">RSVQA</span>        VQA for satellite imagery · Qwen2.5-VL + QLoRA + Grounding DINO`,
+  projects: () => `<span class="g">EmergiSense</span>  ambulance escort · audio+video detection, green corridor · 98% · patent\n<span class="g">SolView</span>      rooftop solar potential from satellite + DEM · 93%\n<span class="g">RSVQA</span>        VQA for satellite imagery · Qwen2.5-VL + QLoRA + Grounding DINO`,
   skills: () => `python · pytorch · opencv · hugging face · sql · c/c++ · linux\ncomputer vision · deep learning · object detection · VLMs · NLP\nremote sensing · GIS · ArcGIS Pro · DEM · jetson nano`,
   education: () => `<span class="k">2026–27</span>  MSc Data Science &amp; AI · Queen's University Belfast\n<span class="k">2019–23</span>  B.Tech ECE · Vishwakarma Institute of Technology, Pune · CGPA 8.65`,
   awards: () => `★ Smart India Hackathon 2022 · Rank 1 nationwide (team lead)\n★ Entrepreneurship Excellence Award 2025\n★ Best Presentation · ICICEEE-22\n★ Avalara: Bull's Eye ×4 · MVP ×2 · Orange Ambassador · 3rd in Q3'24 audit`,
