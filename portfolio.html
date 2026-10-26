@@ -226,6 +226,15 @@ h1.name .l2{color:var(--cyan)}
 .elog li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:8px}
 .elog li span{color:var(--faint);font-variant-numeric:tabular-nums}
 .elog li.g{color:var(--ok)}.elog li.h{color:var(--amber)}
+.pipe{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;counter-reset:st}
+.pipe li{counter-increment:st;position:relative;display:flex;gap:6px;align-items:center;font:500 11px/1.25 var(--f-mono);color:var(--faint);padding:7px 8px;border:1px solid var(--line);border-radius:5px;background:var(--panel-2);transition:color .25s,border-color .25s}
+.pipe li::before{content:counter(st);flex:none;display:grid;place-items:center;width:17px;height:17px;border-radius:50%;font-size:10px;border:1px solid currentColor}
+.pipe li.on{color:var(--cyan);border-color:color-mix(in srgb,var(--cyan) 45%,var(--line))}
+.pipe li.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,var(--line))}
+.pipe li.ok::before{content:"✓";background:var(--ok);color:var(--on-accent);border-color:var(--ok)}
+.pipe li.veto{color:var(--alert);border-color:var(--alert)}
+.pipe li.veto::before{content:"✕"}
+@media (max-width:560px){.pipe{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .qa{display:grid;gap:10px}
 .qchips{display:flex;flex-wrap:wrap;gap:6px}
 .qchip{font:500 12px var(--f-mono);padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);cursor:pointer}
@@ -241,7 +250,7 @@ h1.name .l2{color:var(--cyan)}
 .also b{font:600 var(--t-lg) var(--f-display)}
 .also span{color:var(--muted);font-size:var(--t-sm)}
 @media (max-width:960px){.proj{grid-template-columns:1fr}}
-@media (max-width:480px){.meters{grid-template-columns:1fr 1fr}.meter.fuse{grid-column:1/-1}}
+@media (max-width:480px){.meters{grid-template-columns:1fr 1fr}.meter.fuse,.meter:last-child:nth-child(odd){grid-column:1/-1}}
 
 /* ---------- research ---------- */
 .pubs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -512,36 +521,40 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
     <!-- EmergiSense -->
     <div class="proj" role="tabpanel" id="p-emergi" aria-labelledby="t-emergi">
       <div class="info">
-        <span class="label" style="color:var(--amber)">Smart India Hackathon 2022 · Rank 1 · Patent issued</span>
+        <span class="label" style="color:var(--amber)">Smart India Hackathon 2022 · Rank 1 · Patent issued · AIP Conf. Proc. 2023</span>
         <h3>EmergiSense</h3>
-        <p class="tagline">An ambulance escort system: traffic signals that hear and see an approaching ambulance, turn green for it, and hand it on to the next junction so the route clears ahead of it.</p>
+        <p class="tagline">An ambulance escort system for traffic signals: it hears the siren, confirms the ambulance on camera, and switches the signal so the ambulance never waits at a red light.</p>
         <div class="kpis">
           <div class="kpi"><b>98%</b><span>detection accuracy</span></div>
           <div class="kpi"><b>30+ s</b><span>emergency response time saved</span></div>
           <div class="kpi"><b>Edge</b><span>real-time on Jetson Nano</span></div>
         </div>
         <ul>
-          <li>Each junction fuses audio (siren) and video (vehicle) evidence to confirm an ambulance before overriding its signal.</li>
-          <li>Escort hand-off: once the ambulance clears a junction, the next signal on its route turns green early to flush its queue, opening a green corridor to the hospital.</li>
-          <li>Inference deployed on an NVIDIA Jetson Nano for real-time roadside operation, built in Python, PyTorch and OpenCV.</li>
-          <li>Led the team to Rank 1 nationwide at the Smart India Hackathon; pitched to Maharashtra Police, AICTE and the BHAU Institute, COEP Pune. One national patent issued.</li>
+          <li><strong>Audio first.</strong> 16 kHz microphone audio is cut into 2-second windows with a 1-second hop, turned into log-spectrograms and classified by a 1-D CNN as siren or not.</li>
+          <li><strong>The siren wakes the camera.</strong> An object detector trained on Indian ambulances confirms the vehicle at a score of 0.95 or more, and OCR on the mirrored frame reads the reversed AMBULANCE lettering on the bonnet.</li>
+          <li><strong>Both must agree.</strong> Only then does the Jetson Nano drive an Arduino pin to switch the signal, so a siren alone can't change the lights.</li>
+          <li>Runs in real time on an NVIDIA Jetson Nano with a webcam and microphone. Led the team to Rank 1 nationwide at the Smart India Hackathon; pitched to Maharashtra Police, AICTE and the BHAU Institute, COEP Pune. One national patent issued.</li>
         </ul>
-        <div class="chips"><span class="chip">Python</span><span class="chip">PyTorch</span><span class="chip">OpenCV</span><span class="chip">Audio + video fusion</span><span class="chip">Signal pre-emption</span><span class="chip">NVIDIA Jetson Nano</span></div>
+        <div class="chips"><span class="chip">Python</span><span class="chip">PyTorch</span><span class="chip">OpenCV</span><span class="chip">Spectrogram CNN</span><span class="chip">Tesseract OCR</span><span class="chip">Arduino</span><span class="chip">NVIDIA Jetson Nano</span></div>
       </div>
       <div class="demo">
-        <div class="demo-top"><span class="label">Escort route · simulation</span><span class="hint">dispatch, then try it with the escort off</span></div>
-        <div class="screen bracket"><canvas id="emCanvas" style="aspect-ratio:16/10.5" aria-label="Simulated route with three signalled junctions, an ambulance and a hospital"></canvas></div>
+        <div class="demo-top"><span class="label">Roadside unit · simulation</span><span class="hint">audio first, then the camera confirms</span></div>
+        <div class="screen bracket"><canvas id="emCanvas" style="aspect-ratio:16/11" aria-label="Simulated EmergiSense unit: two webcam frames, a live spectrogram and the traffic signal"></canvas></div>
+        <ol class="pipe" id="emPipe" aria-label="EmergiSense pipeline">
+          <li class="on">Mic · 16 kHz</li><li class="on">2 s window → log-spectrogram</li><li class="on">1-D CNN · siren?</li><li>Webcam wakes</li>
+          <li>Detector · score ≥ 0.95</li><li>Mirror frame + OCR</li><li>Arduino D3 HIGH</li><li>Signal green</li>
+        </ol>
         <div class="meters">
-          <div class="meter"><span id="emAl">Audio · siren</span><b id="emA">0.04</b><div class="bar"><i id="emAb"></i></div></div>
-          <div class="meter"><span id="emVl">Video · ambulance</span><b id="emV">0.00</b><div class="bar"><i id="emVb"></i></div></div>
-          <div class="meter fuse" id="emF"><span>Green corridor</span><b id="emD">Normal cycle</b></div>
+          <div class="meter"><span>CNN · p(siren)</span><b id="emA">0.03</b><div class="bar"><i id="emAb"></i></div></div>
+          <div class="meter"><span>Detector · ambulance</span><b id="emV">idle</b><div class="bar"><i id="emVb"></i></div></div>
+          <div class="meter"><span>OCR · lettering</span><b id="emO">idle</b><div class="bar"><i id="emOb"></i></div></div>
         </div>
         <div class="ctrls">
           <button class="ctrl-btn go" id="emGo" type="button">Dispatch ambulance</button>
-          <button class="ctrl-btn" id="emMode" type="button" aria-pressed="true">Escort: on</button>
+          <button class="ctrl-btn" id="emFake" type="button">Siren, no ambulance</button>
         </div>
-        <p class="emres" id="emRes">Trip time appears here when the ambulance reaches the hospital.</p>
-        <ol class="elog" id="emLog" aria-live="polite"><li class="m"><span>00.0 s</span>Escort armed on J1, J2 and J3 · waiting for dispatch</li></ol>
+        <p class="emres" id="emRes">Dispatch an ambulance to watch the audio branch wake the camera.</p>
+        <ol class="elog" id="emLog" aria-live="polite"><li class="m"><span>00.0 s</span>Listening · camera on standby until the CNN hears a siren</li></ol>
       </div>
     </div>
 
@@ -640,7 +653,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
       <a class="pub" href="https://pubs.aip.org/aip/acp/article/2717/1/030003/2899680/Multimodal-detection-of-ambulance-using-Jetson" target="_blank" rel="noopener">
         <span class="venue">ICICEEE · AIP Conference Proceedings · Jun 2023</span>
         <h3>Multimodal Detection of Ambulance Using Jetson Nano</h3>
-        <p>EmergiSense: audio and video detection of ambulances at traffic signals, running at the edge. Won the Best Presentation Award at ICICEEE-22.</p>
+        <p>EmergiSense: a siren CNN wakes a camera that confirms the ambulance before the signal changes, running on a Jetson Nano. With S. Shilaskar, M. Kanitkar, K. Karangale, G. Kulkarni, S. Bhatlawande and J. Madake · DOI 10.1063/5.0130361. Best Presentation Award at ICICEEE-22.</p>
         <span class="go">Read on AIP ↗</span>
       </a>
       <div class="pub patent bracket">
@@ -926,159 +939,139 @@ tabs.forEach((tb, i) => {
   tb.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; selectTab(n); n.focus(); } });
 });
 
-/* ---------- EmergiSense: ambulance escort along a 3-junction route ---------- */
+/* ---------- EmergiSense: siren-triggered camera confirmation (AIP Conf. Proc. 2717, 2023) ---------- */
 (() => {
-  const cv = $('#emCanvas'); const R = rng(11);
-  const carCols = ['#9aa6bd', '#5d7fb8', '#c4c9d4', '#7a8aa6', '#b56b5e', '#d9b45a', '#4f9a8a'];
-  const lane = .42, roadTop = .3, roadBot = .54, scene = .64, HOSP = .95, CYCLE = 10, RED = 7;
-  const J = [.27, .55, .83].map((x, k) => ({ x, cl: x - .03, cr: x + .03, stop: x - .045, off: k * 3.3, light: 'red', prio: false, done: false, a: .04, v: 0,
-    cross: [0, 1].map(i => ({ y: -.2 - i * .3 - k * .1, v: 0, col: carCols[(k * 2 + i) % carCols.length] })) }));
-  let cars = [], amb = null, escort = true, clock = 0, trip = 0, arrived = false, wave = new Array(240).fill(0), wph = 0, events = [];
-  const results = { on: null, off: null };
-  function mk(x, isAmb){ return { x, len: isAmb ? .065 : .042 + R() * .014, v: 0, side: 0, col: carCols[(R() * carCols.length) | 0], amb: !!isAmb }; }
-  [.2, .14, .08, .47, .41, .75, .69].forEach(x => cars.push(mk(x)));
-  const fmt = s => (s < 10 ? '0' : '') + s.toFixed(1) + ' s';
-  function log(msg, cls = ''){
-    events.unshift(`<li class="${cls}"><span>${fmt(trip)}</span>${msg}</li>`); events = events.slice(0, 4);
-    $('#emLog').innerHTML = events.join('');
+  const cv = $('#emCanvas'); const R = rng(7);
+  const COLS = 180, BINS = 64, CPS = 30; // 6 s of history at 30 columns/s; 0–8 kHz in 125 Hz bins (16 kHz audio)
+  const spec = document.createElement('canvas'); spec.width = COLS; spec.height = BINS; const sg = spec.getContext('2d');
+  const col = sg.createImageData(1, BINS);
+  const MAG = [[0, 0, 4], [59, 15, 112], [140, 41, 129], [222, 73, 104], [254, 159, 109], [252, 253, 191]];
+  const cmap = v => { v = Math.max(0, Math.min(1, v)) * (MAG.length - 1); const i = Math.min(MAG.length - 2, v | 0), f = v - i; return MAG[i].map((c, k) => c + (MAG[i + 1][k] - c) * f); };
+  const pipe = $$('#emPipe li');
+  let mode = 'idle', amb = null, fakeT = 0, level = 0, levels = [], p = .03, hopAcc = 0, colAcc = 0, wailT = 0;
+  let cam = 'standby', camT = 0, det = 0, ocr = 0, armed = true, d3 = false, light = 'red', lightT = 0, clock = 0, t0 = 0;
+  let greenAt = null, arrivedLogged = false, passT = 0, vetoT = 0, events = [];
+  const cars = [{ d: .7, lane: -.42, col: '#5d7fb8' }, { d: 1.25, lane: -.42, col: '#b56b5e' }];
+  const fmt = x => (x < 10 ? '0' : '') + Math.max(0, x).toFixed(1) + ' s';
+  function log(msg, cls = ''){ events.unshift(`<li class="${cls}"><span>${fmt(clock - t0)}</span>${msg}</li>`); events = events.slice(0, 4); $('#emLog').innerHTML = events.join(''); }
+  function pushCol(){
+    wailT += 1 / CPS; const f0 = 950 + 380 * Math.sin(2 * Math.PI * wailT / 3); // Indian "wail" siren sweep
+    for (let b = 0; b < BINS; b++) {
+      const f = b * 125; let v = .1 + .08 * R();
+      if (b < 7) v += .32 * R() * (1 - b / 7); // engine and road rumble
+      for (let k = 1; k <= 3; k++) v += level * (1 / k) * Math.exp(-Math.pow((f - k * f0) / 95, 2));
+      const c = cmap(Math.min(1, v)), o = (BINS - 1 - b) * 4; col.data[o] = c[0]; col.data[o + 1] = c[1]; col.data[o + 2] = c[2]; col.data[o + 3] = 255;
+    }
+    sg.putImageData(sg.getImageData(1, 0, COLS - 1, BINS), 0, 0); sg.putImageData(col, COLS - 1, 0);
   }
-  $('#emGo').onclick = () => {
-    if (amb) return; amb = mk(-.1, true); cars.push(amb); trip = 0; arrived = false;
-    J.forEach(j => { j.prio = false; j.done = false; }); events = [];
-    log(escort ? 'Ambulance dispatched · escort armed on 3 junctions' : 'Ambulance dispatched · escort off, normal signal timing', 'm');
-    $('#emGo').disabled = true; $('#emMode').disabled = true;
-  };
-  $('#emMode').onclick = e => { escort = !escort; e.currentTarget.textContent = 'Escort: ' + (escort ? 'on' : 'off'); e.currentTarget.setAttribute('aria-pressed', escort); };
-  const lightOf = j => j.prio ? 'green' : ((clock + j.off) % CYCLE < RED ? 'red' : 'green');
-  const active = () => amb ? J.find(j => !j.done) : null;
-  function update(dt, t){
+  function hop(){ // every 1 s: classify the last 2 s window
+    const m = levels.reduce((a, b) => a + b, 0) / Math.max(1, levels.length);
+    p = Math.max(.01, Math.min(.99, 1 / (1 + Math.exp(-12 * (m - .35))) + (R() - .5) * .03));
+    if (p > .5 && armed && cam === 'standby' && !d3) { cam = 'active'; camT = 0; armed = false; log(`CNN p(siren) ${p.toFixed(2)} on the 2 s window → camera woken`, 'h'); }
+    if (p < .5) armed = true;
+  }
+  for (let i = 0; i < COLS; i++) pushCol();
+  const busy = () => mode !== 'idle' || cam === 'active' || d3;
+  $('#emGo').onclick = () => { if (busy()) return; mode = 'amb'; amb = { d: 1.35 }; t0 = clock; greenAt = null; arrivedLogged = false; events = []; log('Ambulance approaching with siren on', 'm'); $('#emRes').textContent = 'Watching the pipeline…'; };
+  $('#emFake').onclick = () => { if (busy()) return; mode = 'fake'; fakeT = 0; t0 = clock; events = []; log('Siren-like sound with no ambulance (a phone, a TV, a passing siren on another road)', 'm'); $('#emRes').textContent = 'Watching the pipeline…'; };
+  const proj = (d, fw, fh, hz) => { const sc = .1 / (Math.max(d, 0) + .1); return { sc, yb: hz + (fh * 1.02 - hz) * sc, W: fw * .62 * sc }; };
+  function update(dt){
     if (!dt) return;
-    clock += dt; if (amb && !arrived) trip += dt;
-    // escort: release each junction once the ambulance clears it and hand off to the next one on the route
-    if (amb) J.forEach((j, k) => {
-      if (j.done || amb.x <= j.cr + .01) return;
-      j.done = true; j.prio = false;
-      if (escort && J[k + 1] && !J[k + 1].prio) { J[k + 1].prio = true; log(`J${k + 1} → J${k + 2} hand-off · pre-clearing the queue ahead`, 'h'); }
-    });
-    const A = active();
-    J.forEach(j => {
-      let at = .04 + .03 * Math.sin(t * 2 + j.x * 9), vt = 0;
-      if (escort && j === A) { const d = j.stop - (amb.x + amb.len); if (d < .6) at = .9 + .08 * Math.max(0, 1 - d / .6); if (d < .4 && amb.x + amb.len > .01) vt = .98; }
-      j.a += (at - j.a) * Math.min(1, dt * 2.5); j.v += (vt - j.v) * Math.min(1, dt * 3);
-      if (escort && j === A && !j.prio && j.a > .85 && j.v > .85) { j.prio = true; log(`J${J.indexOf(j) + 1} · siren ${j.a.toFixed(2)} + ambulance ${j.v.toFixed(2)} → priority green`, 'g'); }
-      j.light = lightOf(j);
-    });
-    // eastbound traffic stops at the next red signal or behind the car ahead
-    const vmax = .11; cars.sort((a, b) => b.x - a.x);
-    cars.forEach((c, i) => {
-      const front = c.x + c.len, nj = J.find(j => front <= j.stop + .002);
-      // drivers pull over for the siren, unless they are held at a red light
-      if (!c.amb) { const held = c.v < .02 && nj && nj.light !== 'green', behind = amb && amb.x < c.x && c.x - (amb.x + amb.len) < .12;
-        c.side += ((behind && !held ? 1 : amb && amb.x > c.x - .02 && amb.x < c.x + c.len + .06 ? c.side : 0) - c.side) * Math.min(1, dt * 3); }
-      const lead = c.amb ? cars.slice(0, i).reverse().find(o => o.side < .5) : cars[i - 1];
-      let limit = lead ? lead.x - .012 : Infinity;
-      if (nj && nj.light !== 'green') limit = Math.min(limit, nj.stop);
-      const target = Math.max(0, Math.min(vmax * (c.amb ? 1.3 : 1), (limit - front) * 2.6));
-      c.v += (target - c.v) * Math.min(1, dt * 4); c.x += c.v * dt;
-      if (c.x + c.len > limit) { c.x = Math.max(c.x - c.v * dt, limit - c.len); c.v = 0; } // never roll over the stop line or into the car ahead
-    });
-    if (amb && !arrived && amb.x > HOSP) {
-      arrived = true; results[escort ? 'on' : 'off'] = trip;
-      log(`Arrived at hospital in ${trip.toFixed(1)} s · escort ${escort ? 'on' : 'off'}`, 'g');
-      const { on, off } = results;
-      $('#emRes').innerHTML = on != null && off != null
-        ? `Trip time · escort on <b>${on.toFixed(1)} s</b> · off <b>${off.toFixed(1)} s</b> · ${off > on ? `<b class="ok">${(off - on).toFixed(1)} s faster with escort</b>` : 'traffic was light that run, try again'}`
-        : `Trip time · escort ${escort ? 'on' : 'off'} <b>${trip.toFixed(1)} s</b> · switch escort ${escort ? 'off' : 'on'} and dispatch again to compare`;
-    }
-    cars = cars.filter(c => c.x < 1.12);
-    if (amb && !cars.includes(amb)) { amb = null; $('#emGo').disabled = false; $('#emMode').disabled = false; }
-    const lastCar = cars.reduce((m, c) => Math.min(m, c.x), 1);
-    if (lastCar > .03 && cars.length < 11 && R() < dt * 1.1 && !(amb && amb.x < .1)) cars.push(mk(-.06));
-    // cross traffic at each junction flows while our lane is red
-    J.forEach(j => j.cross.forEach(c => {
-      const stopY = roadTop - .05, go = j.light === 'red';
-      let limit = Infinity; const lead = j.cross.filter(o => o.y > c.y).sort((a, b) => a.y - b.y)[0];
-      if (lead) limit = lead.y - .14; if (!go && c.y + .09 <= stopY + .002) limit = Math.min(limit, stopY - .09);
-      const target = Math.max(0, Math.min(.2, (limit - c.y) * 3)); c.v += (target - c.v) * Math.min(1, dt * 4); c.y += c.v * dt;
-      if (c.y > scene + .1) { c.y = -.25 - R() * .3; c.col = carCols[(R() * carCols.length) | 0]; }
-    }));
-    // siren as heard by the active junction's microphone
-    const d = A ? Math.max(0, A.stop - (amb.x + amb.len)) : 1, near = amb ? Math.max(.15, 1 - d / .6) : 0;
-    for (let k = 0; k < 3; k++) {
-      wph += amb ? (0.9 + .5 * Math.sin(t * 2.2)) : .35;
-      wave.push((R() - .5) * .18 + (amb ? Math.sin(wph) * (.15 + .7 * near) : 0) + .06 * Math.sin(t * 9 + k)); wave.shift();
-    }
+    clock += dt;
+    if (amb) { amb.d -= dt * .17 * Math.min(1, .45 + amb.d); if (amb.d < -.2) amb = null; } // slows on the approach to the junction
+    cars.forEach(c => { c.d -= dt * .12; if (c.d < .32) c.d = 1.35 + R() * .3; }); // other traffic leaves the frame before it gets close
+    let target = 0;
+    if (mode === 'amb') target = amb ? Math.max(.12, Math.min(1, 1.45 - amb.d)) : 0;
+    if (mode === 'fake') { fakeT += dt; target = fakeT < 5 ? .78 : 0; }
+    level += (target - level) * Math.min(1, dt * 2);
+    colAcc += dt * CPS;
+    while (colAcc >= 1) { colAcc--; pushCol(); levels.push(level); if (levels.length > CPS * 2) levels.shift(); if (++hopAcc >= CPS) { hopAcc = 0; hop(); } }
+    // camera branch: only runs once the audio branch has fired
+    const vis = cam === 'active' && amb && amb.d > .02 && amb.d < 1.3, sc = vis ? .1 / (amb.d + .1) : 0;
+    if (cam === 'active') camT += dt;
+    det += ((vis ? Math.min(.99, .6 + 2.1 * sc) : 0) - det) * Math.min(1, dt * 4);
+    ocr += ((vis && sc > .17 ? Math.min(.97, .85 + .8 * (sc - .17)) : 0) - ocr) * Math.min(1, dt * 4);
+    if (cam === 'active' && !d3 && det >= .95 && ocr > .8) { d3 = true; light = 'amber'; lightT = 0; log(`Detector ${det.toFixed(2)} + OCR read "AMBULANCE" → Arduino D3 HIGH`, 'g'); }
+    if (cam === 'active' && !d3 && !amb && camT > 3) { cam = 'standby'; vetoT = 3; log('No ambulance on camera within 3 s → false alarm rejected, lights unchanged', 'h');
+      $('#emRes').innerHTML = 'False alarm rejected. Audio alone would have switched the lights; <b class="ok">the camera vetoed it.</b>'; }
+    if (d3) { lightT += dt; if (light === 'amber' && lightT > .8) { light = 'green'; greenAt = clock; log('Signal green for the ambulance’s approach', 'g'); } }
+    if (amb && greenAt && !arrivedLogged && amb.d < .02) { arrivedLogged = true; const lead = clock - greenAt;
+      log(`Ambulance reached the signal · green ${lead.toFixed(1)} s before it arrived`, 'g');
+      $('#emRes').innerHTML = `Siren to green in <b>${(greenAt - t0).toFixed(1)} s</b> · the ambulance arrived to a light that had been green for <b class="ok">${lead.toFixed(1)} s</b>`; }
+    if (d3 && !amb) { passT += dt; if (passT > 2.5) { d3 = false; light = 'red'; cam = 'standby'; passT = 0; mode = 'idle'; log('Ambulance cleared · D3 LOW, normal cycle resumes', 'm'); } }
+    if (mode === 'fake' && fakeT > 5.5 && cam === 'standby') mode = 'idle';
+    if (mode === 'amb' && !amb && !d3) mode = 'idle';
+    if (vetoT > 0) vetoT -= dt;
   }
+  function vehicle(ctx, v, fw, fh, hz, isAmb, t){
+    const { yb, W } = proj(v.d, fw, fh, hz), H = W * .86, x = fw * .5 + (isAmb ? .2 : v.lane) * fw * .9 * (.1 / (Math.max(v.d, 0) + .1));
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x - W * .52, yb - H * .06, W * 1.04, H * .1);
+    ctx.fillStyle = isAmb ? '#eef2f7' : v.col; ctx.fillRect(x - W / 2, yb - H, W, H * .95);
+    ctx.fillStyle = '#1b2735'; ctx.beginPath(); ctx.moveTo(x - W * .4, yb - H * .82); ctx.lineTo(x + W * .4, yb - H * .82); ctx.lineTo(x + W * .44, yb - H * .5); ctx.lineTo(x - W * .44, yb - H * .5); ctx.fill();
+    ctx.fillStyle = '#ffe9a8'; ctx.fillRect(x - W * .44, yb - H * .26, W * .14, H * .08); ctx.fillRect(x + W * .3, yb - H * .26, W * .14, H * .08);
+    ctx.fillStyle = '#2a2f3a'; ctx.fillRect(x - W / 2, yb - H * .14, W, H * .1);
+    if (!isAmb) return { x, yb, W, H };
+    const on = Math.floor(t * 8) % 2; ctx.fillStyle = on ? '#ff3b4d' : '#3b7bff'; ctx.fillRect(x - W * .36, yb - H * 1.02, W * .34, H * .08); ctx.fillStyle = on ? '#3b7bff' : '#ff3b4d'; ctx.fillRect(x + W * .02, yb - H * 1.02, W * .34, H * .08);
+    ctx.fillStyle = '#d4202f'; ctx.fillRect(x - W / 2, yb - H * .47, W, H * .04);
+    ctx.save(); ctx.translate(x, yb - H * .33); ctx.scale(-1, 1); // lettering is painted mirrored so drivers read it in their mirrors
+    ctx.font = `800 ${Math.max(4, W * .13)}px "Hanken Grotesk", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#d4202f'; ctx.fillText('AMBULANCE', 0, 0); ctx.restore();
+    return { x, yb, W, H };
+  }
+  function frame(ctx, x0, y0, fw, fh, flip, t){
+    const hz = fh * .42; let box = null;
+    ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, fw, fh); ctx.clip();
+    if (flip) { ctx.translate(x0 + fw, y0); ctx.scale(-1, 1); } else ctx.translate(x0, y0);
+    const sky = ctx.createLinearGradient(0, 0, 0, hz); sky.addColorStop(0, '#0a1222'); sky.addColorStop(1, '#22304d'); ctx.fillStyle = sky; ctx.fillRect(0, 0, fw, hz);
+    ctx.fillStyle = '#121b2c'; [[0, .3, .16], [.12, .22, .1], [.72, .26, .12], [.86, .34, .16]].forEach(([bx, bh, bw]) => ctx.fillRect(bx * fw, hz - bh * fh, bw * fw, bh * fh));
+    ctx.fillStyle = '#ffd77a'; [[.04, .2], [.08, .26], [.76, .2], [.9, .28], [.94, .18]].forEach(([wx, wy]) => ctx.fillRect(wx * fw, hz - wy * fh, fw * .015, fh * .02));
+    ctx.fillStyle = '#2a2c30'; ctx.fillRect(0, hz, fw, fh - hz);
+    ctx.fillStyle = '#3b3f47'; ctx.beginPath(); ctx.moveTo(fw * .49, hz); ctx.lineTo(fw * .51, hz); ctx.lineTo(fw * 1.25, fh); ctx.lineTo(-fw * .25, fh); ctx.fill();
+    ctx.fillStyle = '#e8d38a';
+    for (let k = 0; k < 7; k++) { const u = ((k / 7) + t * .25) % 1, a = Math.pow(u, 2.2), b = Math.pow(Math.min(1, u + .06), 2.2);
+      const ya = hz + (fh - hz) * a, yb2 = hz + (fh - hz) * b, wa = 1 + 5 * a, wb = 1 + 5 * b;
+      ctx.beginPath(); ctx.moveTo(fw * .5 - wa / 2, ya); ctx.lineTo(fw * .5 + wa / 2, ya); ctx.lineTo(fw * .5 + wb / 2, yb2); ctx.lineTo(fw * .5 - wb / 2, yb2); ctx.fill(); }
+    const list = cars.map(c => ({ v: c, a: false })); if (amb && amb.d > -.05) list.push({ v: amb, a: true });
+    list.sort((a, b) => b.v.d - a.v.d).forEach(o => { if (o.v.d < 1.32) { const r = vehicle(ctx, o.v, fw, fh, hz, o.a, t); if (o.a) box = r; } });
+    ctx.restore();
+    if (cam !== 'active') { ctx.fillStyle = 'rgba(4,8,14,.66)'; ctx.fillRect(x0, y0, fw, fh); ctx.fillStyle = 'rgba(232,238,248,.75)'; ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.textAlign = 'center';
+      ctx.fillText(vetoT > 0 ? 'NO AMBULANCE · VETOED' : 'STANDBY', x0 + fw / 2, y0 + fh / 2 - 4); ctx.fillStyle = 'rgba(232,238,248,.45)'; ctx.fillText('waits for a siren', x0 + fw / 2, y0 + fh / 2 + 10); ctx.textAlign = 'left'; }
+    return box;
+  }
+  function tag(ctx, x, y, text, colr){ ctx.font = '500 10px "JetBrains Mono", monospace'; const tw = ctx.measureText(text).width + 8; ctx.fillStyle = colr; ctx.fillRect(x, y - 14, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(text, x + 4, y - 4); }
   function draw(t){
-    const { ctx, w, h } = fit(cv); const sh = h * scene, ly = lane * h, LH = .07 * h, mid = (roadTop + roadBot) / 2 * h;
-    ctx.fillStyle = '#0e1a14'; ctx.fillRect(0, 0, w, sh);
-    ctx.fillStyle = '#16261c'; for (let i = 0; i < 46; i++) { const x = (i * 97) % w, y = (i * 53) % (sh * .25); ctx.fillRect(x, y, 3, 3); ctx.fillRect((x * 1.3) % w, sh * .62 + (y % (sh * .3)), 3, 3); }
-    // roads
-    ctx.fillStyle = '#262c37'; ctx.fillRect(0, roadTop * h, w, (roadBot - roadTop) * h);
-    J.forEach(j => ctx.fillRect(j.cl * w, 0, (j.cr - j.cl) * w, sh));
-    ctx.strokeStyle = '#e8d38a'; ctx.setLineDash([12, 10]); ctx.lineWidth = 2; ctx.beginPath();
-    [0, ...J.map(j => j.cr)].forEach((x0, i) => { const x1 = J[i] ? J[i].cl : 1; ctx.moveTo(x0 * w, mid); ctx.lineTo(x1 * w, mid); }); ctx.stroke(); ctx.setLineDash([]);
-    // green corridor: our lane from the ambulance to the furthest junction holding green for it
-    const A = active();
-    if (amb && escort) {
-      const far = [...J].reverse().find(j => j.prio && !j.done);
-      if (far && far.cr > amb.x) { const g = ctx.createLinearGradient(amb.x * w, 0, far.cr * w, 0); g.addColorStop(0, 'rgba(62,224,161,.3)'); g.addColorStop(1, 'rgba(62,224,161,.06)');
-        ctx.fillStyle = g; ctx.fillRect(amb.x * w, mid + 2, (far.cr - amb.x) * w, roadBot * h - mid - 4); }
-    }
-    J.forEach((j, k) => {
-      ctx.fillStyle = 'rgba(232,238,248,.5)'; for (let y = roadTop * h + 4; y < roadBot * h - 4; y += 9) ctx.fillRect(j.cl * w - 10, y, 7, 5);
-      ctx.fillStyle = '#e8eef8'; ctx.fillRect(j.stop * w + 1, mid + 2, 3, roadBot * h - mid - 4);
-      j.cross.forEach(c => { const x = (j.x + .002) * w, y = c.y * h; ctx.fillStyle = c.col; ctx.fillRect(x, y, .026 * w, .09 * h); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + 2, y + .05 * h, .026 * w - 4, .018 * h); });
-      // signal head + label
-      const sx = j.stop * w - 14, sy = roadBot * h + 6;
-      if (j.prio) { ctx.fillStyle = 'rgba(62,224,161,.18)'; ctx.beginPath(); ctx.arc(sx + 6, sy + 22, 20 + 3 * Math.sin(t * 6), 0, 7); ctx.fill(); }
-      ctx.fillStyle = '#0a0e16'; ctx.fillRect(sx, sy, 12, 30); ctx.strokeStyle = '#3a4560'; ctx.strokeRect(sx, sy, 12, 30);
-      ctx.fillStyle = j.light === 'red' ? '#ff4b5c' : '#3a1d24'; ctx.beginPath(); ctx.arc(sx + 6, sy + 8, 4, 0, 7); ctx.fill();
-      ctx.fillStyle = j.light === 'green' ? '#3ee0a1' : '#173328'; ctx.beginPath(); ctx.arc(sx + 6, sy + 22, 4, 0, 7); ctx.fill();
-      ctx.font = '600 10px "JetBrains Mono", monospace'; ctx.fillStyle = j.prio ? '#3ee0a1' : 'rgba(232,238,248,.7)';
-      ctx.fillText(`J${k + 1}` + (j.prio ? ' ESCORT' : ''), sx + 17, sy + 12);
-      if (escort && j === A) { ctx.fillStyle = 'rgba(255,181,71,.9)'; ctx.font = '500 9px "JetBrains Mono", monospace'; ctx.fillText('CAM+MIC ●', sx + 17, sy + 25); }
-    });
-    // hospital at the end of the route
-    const hx = (HOSP + .005) * w, hy = .07 * h;
-    ctx.fillStyle = '#e8eef8'; ctx.fillRect(hx - 18, hy, 36, .16 * h); ctx.fillStyle = '#e8394a'; ctx.fillRect(hx - 3, hy + 6, 6, 18); ctx.fillRect(hx - 9, hy + 12, 18, 6);
-    ctx.font = '600 9px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(232,238,248,.75)'; ctx.fillText('HOSPITAL', hx - 24, hy - 4);
-    // eastbound traffic
-    ctx.font = '500 10px "JetBrains Mono", monospace';
-    [...cars].sort((a, b) => a.amb - b.amb).forEach(c => {
-      const x = c.x * w, L = c.len * w, cy = ly + c.side * .045 * h;
-      ctx.fillStyle = c.amb ? '#f4f6fb' : c.col; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, cy, L, LH, 4) : ctx.rect(x, cy, L, LH); ctx.fill();
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + L * .62, cy + 3, L * .18, LH - 6);
-      if (!c.amb) return;
-      ctx.fillStyle = '#e8394a'; ctx.fillRect(x + L * .22, ly + LH / 2 - 2, L * .24, 4); ctx.fillRect(x + L * .32, ly + LH / 2 - 7, 4, 14);
-      const on = Math.floor(t * 8) % 2; ctx.fillStyle = on ? '#ff3b4d' : '#3b7bff'; ctx.fillRect(x + L * .5, ly - 1, 5, 4); ctx.fillStyle = on ? '#3b7bff' : '#ff3b4d'; ctx.fillRect(x + L * .5, ly + LH - 3, 5, 4);
-      ctx.fillStyle = on ? 'rgba(255,59,77,.18)' : 'rgba(59,123,255,.18)'; ctx.beginPath(); ctx.arc(x + L * .5, ly + LH / 2, 24, 0, 7); ctx.fill();
-      if (escort && A && A.v > .5) {
-        const lbl = `ambulance ${A.v.toFixed(2)} · J${J.indexOf(A) + 1}`, tw = ctx.measureText(lbl).width + 8;
-        ctx.strokeStyle = '#ffb547'; ctx.lineWidth = 2; ctx.strokeRect(x - 3, ly - 3, L + 6, LH + 6);
-        ctx.fillStyle = '#ffb547'; ctx.fillRect(x - 3, ly - 17, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(lbl, x + 1, ly - 6);
-      }
-    });
-    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.font = '500 10px "JetBrains Mono", monospace';
-    ctx.fillText('EMERGISENSE ESCORT · 3 JUNCTIONS · ' + (escort ? 'ARMED' : 'OFF'), 10, 16);
-    // audio panel
-    ctx.fillStyle = '#081019'; ctx.fillRect(0, sh, w, h - sh); ctx.strokeStyle = '#1c2945'; ctx.beginPath(); ctx.moveTo(0, sh + .5); ctx.lineTo(w, sh + .5); ctx.stroke();
-    const wm = sh + (h - sh) * .56, amp = (h - sh) * .36;
-    ctx.strokeStyle = 'rgba(70,212,255,.12)'; ctx.beginPath(); ctx.moveTo(0, wm); ctx.lineTo(w, wm); ctx.stroke();
-    ctx.strokeStyle = amb ? '#ffb547' : '#46d4ff'; ctx.lineWidth = 1.4; ctx.beginPath();
-    wave.forEach((v, i) => { const x = i / (wave.length - 1) * w, y = wm - v * amp; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
-    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.fillText(`MIC · ${A ? 'J' + (J.indexOf(A) + 1) : 'ALL'} · ` + (amb ? 'SIREN PATTERN DETECTED' : 'AMBIENT TRAFFIC'), 10, sh + 16);
+    const { ctx, w, h } = fit(cv); ctx.fillStyle = '#081019'; ctx.fillRect(0, 0, w, h);
+    const top = h * .58, gap = 6, fw = (w - gap) / 2, fy = 18, fh = top - fy;
+    ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(232,238,248,.6)';
+    const narrow = w < 480;
+    ctx.fillText(narrow ? 'WEBCAM · DETECTOR' : 'WEBCAM 640×480 · DETECTOR', 4, 12); ctx.fillText(narrow ? 'MIRRORED · OCR' : 'MIRRORED FRAME · OCR', fw + gap + 4, 12);
+    const b = frame(ctx, 0, fy, fw, fh, false, t); frame(ctx, fw + gap, fy, fw, fh, true, t);
+    if (cam === 'active' && b && det >= .95) { ctx.strokeStyle = '#ffb547'; ctx.lineWidth = 2; ctx.strokeRect(b.x - b.W / 2 - 2, fy + b.yb - b.H * 1.06, b.W + 4, b.H * 1.06); tag(ctx, b.x - b.W / 2 - 2, fy + b.yb - b.H * 1.06, `ambulance ${det.toFixed(2)}`, '#ffb547'); }
+    if (cam === 'active' && b && ocr > .8) { const cx = fw + gap + (fw - b.x), cy = fy + b.yb - b.H * .33, tw = b.W * .86, th = Math.max(6, b.W * .17);
+      ctx.strokeStyle = '#3ee0a1'; ctx.lineWidth = 2; ctx.strokeRect(cx - tw / 2, cy - th / 2, tw, th); tag(ctx, cx - tw / 2, cy - th / 2 - 2, `OCR "AMBULANCE" ${ocr.toFixed(2)}`, '#3ee0a1'); }
+    // spectrogram
+    const sy0 = top + 22, sw = w * .74, shh = h - sy0 - 6;
+    ctx.fillStyle = 'rgba(232,238,248,.6)'; ctx.fillText(narrow ? 'MIC · 16 kHz' : 'MIC · 16 kHz · LOG-SPECTROGRAM', 4, top + 15);
+    ctx.imageSmoothingEnabled = true; ctx.drawImage(spec, 0, sy0, sw, shh);
+    ctx.fillStyle = 'rgba(232,238,248,.55)'; ctx.font = '500 9px "JetBrains Mono", monospace'; ctx.fillText('8 kHz', 4, sy0 + 10); ctx.fillText('0', 4, sy0 + shh - 3);
+    const wx = sw * (COLS - CPS * 2) / COLS; ctx.strokeStyle = p > .5 ? '#ffb547' : '#46d4ff'; ctx.lineWidth = 1.5; ctx.strokeRect(wx + 1, sy0 + 1, sw - wx - 2, shh - 2);
+    ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillStyle = p > .5 ? '#ffb547' : '#46d4ff'; ctx.textAlign = 'right'; ctx.fillText(`${narrow ? '2 s' : '2 s window'} · p(siren) ${p.toFixed(2)}`, sw, top + 15); ctx.textAlign = 'left';
+    // signal head + Arduino pin
+    const gx = sw + (w - sw) / 2, gy = sy0, lh = Math.min(shh - 16, 96), lr = Math.max(4, lh / 8);
+    ctx.fillStyle = '#0a0e16'; ctx.strokeStyle = '#3a4560'; ctx.fillRect(gx - lr * 1.7, gy, lr * 3.4, lh); ctx.strokeRect(gx - lr * 1.7, gy, lr * 3.4, lh);
+    [['red', '#ff4b5c', '#3a1d24'], ['amber', '#ffb547', '#3a2c12'], ['green', '#3ee0a1', '#173328']].forEach(([n, onc, offc], i) => {
+      ctx.fillStyle = light === n ? onc : offc; ctx.beginPath(); ctx.arc(gx, gy + lh * (i + .5) / 3, lr, 0, 7); ctx.fill(); });
+    ctx.textAlign = 'center'; ctx.font = '600 10px "JetBrains Mono", monospace'; ctx.fillStyle = d3 ? '#3ee0a1' : 'rgba(232,238,248,.55)';
+    ctx.fillText(`D3 ${d3 ? 'HIGH' : 'LOW'}`, gx, Math.min(h - 4, gy + lh + 14)); ctx.textAlign = 'left';
   }
   addLoop(cv, (t, dt) => {
-    update(dt, t); draw(t);
-    const A = active(), on = escort && !!A, src = A || J[0];
-    const a = on ? src.a : 0, v = on ? src.v : 0, jn = A ? ' · J' + (J.indexOf(A) + 1) : '';
-    $('#emAl').textContent = 'Audio · siren' + (on ? jn : ''); $('#emVl').textContent = 'Video · ambulance' + (on ? jn : '');
-    $('#emA').textContent = escort ? a.toFixed(2) : 'off'; $('#emAb').style.width = (a * 100) + '%';
-    $('#emV').textContent = escort ? v.toFixed(2) : 'off'; $('#emVb').style.width = (v * 100) + '%';
-    const greens = J.filter(j => j.prio).map(j => 'J' + (J.indexOf(j) + 1)), cleared = J.filter(j => j.done).length;
-    $('#emF').classList.toggle('hot', greens.length > 0 || arrived);
-    $('#emD').textContent = !amb ? 'Normal cycle' : arrived ? 'Arrived' : !escort ? 'No escort' : greens.length ? `${greens.join(' ')} green · ${cleared}/3` : cleared === 3 ? 'Route clear · 3/3' : `Confirming · ${cleared}/3`;
+    update(dt); draw(t);
+    $('#emA').textContent = p.toFixed(2); $('#emAb').style.width = (p * 100) + '%';
+    $('#emV').textContent = d3 && det < .95 ? 'confirmed' : cam === 'active' ? det.toFixed(2) : 'idle'; $('#emVb').style.width = (det * 100) + '%';
+    $('#emO').textContent = d3 || ocr > .8 ? 'AMBULANCE' : cam === 'active' ? 'reading…' : 'idle'; $('#emOb').style.width = (ocr * 100) + '%';
+    const st = ['on', 'on', p > .5 ? 'ok' : 'on', cam === 'active' || d3 ? 'ok' : '', vetoT > 0 ? 'veto' : det >= .95 || d3 ? 'ok' : cam === 'active' ? 'on' : '',
+      ocr > .8 || d3 ? 'ok' : det >= .95 ? 'on' : '', d3 ? 'ok' : '', light === 'green' ? 'ok' : ''];
+    pipe.forEach((li, i) => { li.className = st[i]; });
+    $('#emGo').disabled = $('#emFake').disabled = busy();
   });
 })();
 
@@ -1342,7 +1335,7 @@ const CMDS = {
   help: () => `<span class="k">commands</span>\n  whoami      short bio\n  experience  roles and dates\n  projects    what I've built\n  skills      core stack\n  education   degrees\n  awards      highlights\n  papers      publications &amp; patent\n  contact     how to reach me\n  goto &lt;section&gt;  scroll to a section\n  theme       toggle light/dark\n  clear       clear the screen`,
   whoami: () => `<span class="g">Atharva Uday Kalase</span> · data scientist\nMSc Data Science &amp; AI @ Queen's University Belfast (2026–27)\n2+ yrs: ISRO Space Applications Centre, Avalara\nfocus: computer vision · remote sensing · multimodal &amp; geospatial ML`,
   experience: () => `<span class="k">2024-03 → 2025-05</span>  Implementation Consultant · Avalara, Pune\n<span class="k">2022-07 → 2023-07</span>  Computer Vision &amp; GIS Researcher · ISRO SAC, Ahmedabad`,
-  projects: () => `<span class="g">EmergiSense</span>  ambulance escort · audio+video detection, green corridor · 98% · patent\n<span class="g">SolView</span>      rooftop solar potential from satellite + DEM · 93%\n<span class="g">RSVQA</span>        VQA for satellite imagery · Qwen2.5-VL + QLoRA + Grounding DINO`,
+  projects: () => `<span class="g">EmergiSense</span>  ambulance escort · siren CNN wakes camera, detector + OCR confirm, Arduino switches signal · 98% · patent\n<span class="g">SolView</span>      rooftop solar potential from satellite + DEM · 93%\n<span class="g">RSVQA</span>        VQA for satellite imagery · Qwen2.5-VL + QLoRA + Grounding DINO`,
   skills: () => `python · pytorch · opencv · hugging face · sql · c/c++ · linux\ncomputer vision · deep learning · object detection · VLMs · NLP\nremote sensing · GIS · ArcGIS Pro · DEM · jetson nano`,
   education: () => `<span class="k">2026–27</span>  MSc Data Science &amp; AI · Queen's University Belfast\n<span class="k">2019–23</span>  B.Tech ECE · Vishwakarma Institute of Technology, Pune · CGPA 8.65`,
   awards: () => `★ Smart India Hackathon 2022 · Rank 1 nationwide (team lead)\n★ Entrepreneurship Excellence Award 2025\n★ Best Presentation · ICICEEE-22\n★ Avalara: Bull's Eye ×4 · MVP ×2 · Orange Ambassador · 3rd in Q3'24 audit`,
