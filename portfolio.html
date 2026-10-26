@@ -551,7 +551,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
       </div>
       <div class="demo">
         <div class="demo-top"><span class="label">City block · live demo</span><span class="hint">hover a roof for its numbers</span></div>
-        <div class="screen bracket" style="--c:var(--amber)"><canvas id="svCanvas" style="aspect-ratio:16/10.5" aria-label="Animated city block: shadows move with the sun, then roofs are coloured by solar potential"></canvas><div class="tip" id="svTip" hidden></div></div>
+        <div class="screen bracket" style="--c:var(--amber)"><canvas id="svCanvas" style="aspect-ratio:16/10.5" aria-label="Animated 3D city block with buildings of different heights: shadows move with the sun, then roofs are coloured by solar potential"></canvas><div class="tip" id="svTip" hidden></div></div>
         <div class="story">
           <ol class="steps" id="svSteps" style="--n:4" aria-label="SolView steps"><li><span>Map + heights</span></li><li><span>Shadows</span></li><li><span>Score roofs</span></li><li><span>Best roofs</span></li></ol>
           <div class="cap" id="svCap"><b>1 · Satellite view and building heights</b><p>SolView starts from a high-resolution satellite image of the city. A digital elevation model (DEM) adds the height of every building.</p><span class="tech">satellite imagery · DEM · ArcGIS Pro</span></div>
@@ -578,11 +578,11 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
         <div class="chips"><span class="chip">PyTorch</span><span class="chip">Hugging Face Transformers</span><span class="chip">PEFT / QLoRA</span><span class="chip">Grounding DINO</span><span class="chip">VLMs</span></div>
       </div>
       <div class="demo">
-        <div class="demo-top"><span class="label">Satellite tile · live demo</span><span class="hint" id="vqN">question 1 of 5</span></div>
-        <div class="screen bracket" style="width:100%;max-width:440px;margin-inline:auto"><canvas id="vqCanvas" style="aspect-ratio:1/1" aria-label="Synthetic satellite tile; questions are asked and answered automatically, with boxes on the evidence"></canvas></div>
+        <div class="demo-top"><span class="label">Queen's University Belfast · live demo</span><span class="hint" id="vqN">question 1 of 5 · real image</span></div>
+        <div class="screen bracket" style="width:100%;max-width:440px;margin-inline:auto"><canvas id="vqCanvas" style="aspect-ratio:1/1" aria-label="Real satellite image of Queen's University Belfast; questions about it are asked and answered automatically, with boxes on the evidence"></canvas></div>
         <div class="story">
           <ol class="steps" id="vqSteps" style="--n:4" aria-label="RSVQA steps"><li><span>See image</span></li><li><span>Read question</span></li><li><span>Answer</span></li><li><span>Show evidence</span></li></ol>
-          <div class="cap" id="vqCap"><b class="qa-q">Q: How many buildings are there?</b><p class="qa-a">&nbsp;</p><span class="tech">Qwen2.5-VL vision encoder</span></div>
+          <div class="cap" id="vqCap"><b class="qa-q">Q: Which building has a courtyard in the middle?</b><p class="qa-a">&nbsp;</p><span class="tech">Qwen2.5-VL vision encoder</span></div>
         </div>
       </div>
     </article>
@@ -1037,7 +1037,7 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
   const cv = $('#svCanvas'), tip = $('#svTip'); let heat = false, seed = 4, B = [], hover = -1, userHover = false, hour = 9, ph = 0, pt = 0, pick = -1;
   const say = story('#svSteps', '#svCap');
   const PH = [
-    { dur: 4.5, title: '1 · Satellite view and building heights', text: 'SolView starts from a high-resolution satellite image of the city. A digital elevation model (DEM) adds the height of every building.', tech: 'satellite imagery · DEM · ArcGIS Pro' },
+    { dur: 6, title: '1 · Satellite view and building heights', text: 'SolView starts from a high-resolution satellite image of the city. A digital elevation model (DEM) gives every building its height, drawn here in 3D.', tech: 'satellite imagery · DEM · ArcGIS Pro' },
     { dur: 8, title: '2 · Shadows through the day', text: 'As the sun moves from morning to evening, taller buildings throw shadows across their neighbours’ roofs. SolView tracks this for every hour.', tech: 'sun position by hour · shadows cast from DEM heights' },
     { dur: 5, title: '3 · Scoring every roof', text: 'Each roof gets a yearly energy estimate from its area and how much of the day it spends in sun. Brighter roofs have more solar potential.', tech: 'usable area × sunlight × panel efficiency × (1 − shading)' },
     { dur: 7, title: '4 · Best and worst roofs', text: 'Planners can see at a glance which roofs are worth fitting with panels. Over Ahmedabad, Gandhinagar and Delhi the model reached 93% accuracy.', tech: '93% accuracy across 3 Indian cities' },
@@ -1055,9 +1055,10 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
         const r = splitX ? { x: x0 + acc * bw + pad, y: y0 + pad, w: frac * bw - pad * 2, h: bh - pad * 2 } : { x: x0 + pad, y: y0 + acc * bh + pad, w: bw - pad * 2, h: frac * bh - pad * 2 };
         acc += frac; if (r.w < 6 || r.h < 6) continue;
         const sh = .7 + R() * .25; r.x += r.w * (1 - sh) / 2 * R(); r.w *= sh; r.y += r.h * (1 - sh) / 2 * R(); r.h *= sh;
-        r.z = 6 + Math.pow(R(), 1.6) * 42; r.tone = 150 + R() * 70; r.tank = R() < .5; B.push(r);
+        r.z = 4 + Math.pow(R(), 2.4) * 46; r.tone = 150 + R() * 70; r.tank = R() < .5; B.push(r);
       }
     }
+    for (let k = 0; k < 3; k++) B[(R() * B.length) | 0].z = 52 + R() * 22; // a few towers among mostly low-rise
     // annual-ish shading: average over 08:00–17:00
     B.forEach(b => b.shade = 0);
     for (let hr = 8; hr <= 17; hr++) { const s = sun(hr); B.forEach((b, i) => b.shade += shadedFrac(i, s) / 10); }
@@ -1081,10 +1082,15 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
     }
     return hit / n;
   }
+  const KZ = .55, PAD = 46; // oblique view: each metre of height lifts a roof KZ map units
+  const order = () => B.map((_, i) => i).sort((a, b) => (B[a].y + B[a].h) - (B[b].y + B[b].h)); // back to front
+  const hit = (x, y) => { const o = order(); for (let k = o.length - 1; k >= 0; k--) { const b = B[o[k]]; if (x >= b.x && x <= b.x + b.w && y >= b.y - b.z * KZ && y <= b.y + b.h) return o[k]; } return -1; };
+  const rgb = (c, k = 1) => `rgb(${c.map(v => Math.round(v * k))})`;
+  function heatRGB(v){ const st = [[27,42,107],[122,44,143],[224,87,58],[255,181,71],[255,243,176]]; v = Math.max(0, Math.min(1, v)) * (st.length - 1); const i = Math.min(st.length - 2, Math.floor(v)), f = v - i; return st[i].map((x, k) => Math.round(x + (st[i + 1][k] - x) * f)); }
   function heatCol(v){ const st = [[27,42,107],[122,44,143],[224,87,58],[255,181,71],[255,243,176]]; v = Math.max(0, Math.min(1, v)) * (st.length - 1); const i = Math.min(st.length - 2, Math.floor(v)), f = v - i; const c = st[i].map((x, k) => Math.round(x + (st[i + 1][k] - x) * f)); return `rgb(${c})`; }
   const clock = hr => String(Math.floor(hr)).padStart(2, '0') + ':' + String(Math.floor((hr % 1) * 60 / 15) * 15).padStart(2, '0');
   function draw(){
-    const { ctx, w, h } = fit(cv); const sc = Math.min(w / WW, h / WH), ox = (w - WW * sc) / 2, oy = (h - WH * sc) / 2;
+    const { ctx, w, h } = fit(cv); const sc = Math.min(w / WW, h / (WH + PAD)), ox = (w - WW * sc) / 2, oy = (h - (WH + PAD) * sc) / 2 + PAD * sc;
     const s = sun(hour);
     ctx.fillStyle = '#2a2b30'; ctx.fillRect(0, 0, w, h);
     ctx.save(); ctx.translate(ox, oy); ctx.scale(sc, sc);
@@ -1095,19 +1101,28 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
     ctx.strokeStyle = 'rgba(240,230,170,.35)'; ctx.lineWidth = .6; ctx.setLineDash([4, 4]);
     for (let j = 0; j <= rows; j++) { ctx.beginPath(); ctx.moveTo(0, road / 2 + j * (bh + road)); ctx.lineTo(WW, road / 2 + j * (bh + road)); ctx.stroke(); }
     ctx.setLineDash([]);
+    // shadows fall on the ground plane
     ctx.fillStyle = 'rgba(8,10,20,.5)';
     B.forEach(b => { const dx = s.dx * b.z, dy = s.dy * b.z; const c = [[b.x, b.y], [b.x + b.w, b.y], [b.x + b.w, b.y + b.h], [b.x, b.y + b.h]];
       for (let k = 0; k < 4; k++) { const p = c[k], q = c[(k + 1) % 4]; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.lineTo(q[0] + dx, q[1] + dy); ctx.lineTo(p[0] + dx, p[1] + dy); ctx.fill(); }
       ctx.fillRect(b.x + dx, b.y + dy, b.w, b.h); });
+    // buildings back to front: south wall with floor lines, then the roof lifted by its height
     const hl = userHover ? hover : pick;
-    B.forEach((b, i) => {
-      const g = b.tone | 0; ctx.fillStyle = heat ? heatCol(b.score) : `rgb(${g},${g - 6},${g - 14})`; ctx.fillRect(b.x, b.y, b.w, b.h);
-      if (!heat) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(b.x + b.w * .1, b.y + b.h * .1, b.w * .8, 1.2); if (b.tank) { ctx.fillStyle = '#20232b'; ctx.beginPath(); ctx.arc(b.x + b.w * .75, b.y + b.h * .3, 2.2, 0, 7); ctx.fill(); } }
-      ctx.strokeStyle = i === hl ? '#46d4ff' : 'rgba(0,0,0,.35)'; ctx.lineWidth = i === hl ? 3 / sc : .6; ctx.strokeRect(b.x, b.y, b.w, b.h);
+    order().forEach(i => {
+      const b = B[i], lift = b.z * KZ, g = b.tone | 0, base = heat ? heatRGB(b.score) : [g, g - 6, g - 14];
+      ctx.fillStyle = rgb(base, .5); ctx.fillRect(b.x, b.y + b.h - lift, b.w, lift);
+      ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = .35; ctx.beginPath();
+      for (let f = 3.5; f < b.z; f += 3.5) { const yy = b.y + b.h - f * KZ; ctx.moveTo(b.x, yy); ctx.lineTo(b.x + b.w, yy); }
+      ctx.stroke();
+      ctx.fillStyle = rgb(base); ctx.fillRect(b.x, b.y - lift, b.w, b.h);
+      if (!heat) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(b.x + b.w * .1, b.y - lift + b.h * .1, b.w * .8, 1.2); if (b.tank) { ctx.fillStyle = '#20232b'; ctx.beginPath(); ctx.arc(b.x + b.w * .75, b.y - lift + b.h * .3, 2.2, 0, 7); ctx.fill(); } }
+      ctx.strokeStyle = i === hl ? '#46d4ff' : 'rgba(0,0,0,.35)'; ctx.lineWidth = i === hl ? 3 / sc : .6; ctx.strokeRect(b.x, b.y - lift, b.w, b.h + lift);
     });
-    if (ph === 0) { // show heights as labels on a few tall buildings
-      ctx.font = `600 ${9 / sc}px "JetBrains Mono", monospace`; ctx.fillStyle = '#46d4ff';
-      [...B].sort((a, b) => b.z - a.z).slice(0, 6).forEach(b => ctx.fillText(`${b.z.toFixed(0)} m`, b.x + 2 / sc, b.y + b.h / 2 + 3 / sc));
+    if (ph === 0) { // height labels on every roof wide enough to hold one
+      ctx.font = `600 ${9 / sc}px "JetBrains Mono", monospace`; ctx.textBaseline = 'middle';
+      order().forEach(i => { const b = B[i]; if (b.w * sc < 26) return; const t = `${b.z.toFixed(0)} m`, tw = ctx.measureText(t).width, x = b.x + b.w / 2 - tw / 2, y = b.y - b.z * KZ + b.h / 2;
+        ctx.fillStyle = 'rgba(7,16,24,.72)'; ctx.fillRect(x - 2 / sc, y - 6 / sc, tw + 4 / sc, 12 / sc); ctx.fillStyle = b.z > 45 ? '#ffb547' : '#46d4ff'; ctx.fillText(t, x, y); });
+      ctx.textBaseline = 'alphabetic';
     }
     ctx.restore();
     ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(232,238,248,.8)';
@@ -1136,139 +1151,71 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
       const ranked = [...B].sort((a, b) => b.kwh - a.kwh), best = ranked[0], worst = ranked[ranked.length - 1], target = k < .5 ? best : worst;
       pick = B.indexOf(target); note = k < .5 ? `Best roof here: ${(best.kwh / 1000).toFixed(1)} MWh a year.` : `Worst: ${(worst.kwh / 1000).toFixed(1)} MWh, mostly in shade.`;
     } else pick = -1;
+    if (ph === 0) { const zs = B.map(b => b.z); note = `Heights in this block run from ${Math.min(...zs).toFixed(0)} m to ${Math.max(...zs).toFixed(0)} m; the tallest are marked in amber.`; }
     geo = draw();
-    if (!userHover) { if (pick >= 0) { const b = B[pick]; showTip(pick, geo.ox + (b.x + b.w) * geo.sc, geo.oy + b.y * geo.sc); } else tip.hidden = true; }
+    if (!userHover) { if (pick >= 0) { const b = B[pick]; showTip(pick, geo.ox + (b.x + b.w) * geo.sc, geo.oy + (b.y - b.z * KZ) * geo.sc); } else tip.hidden = true; }
     say(stepStates(4, ph), PH[ph].title, PH[ph].text + (note ? ' ' + note : ''), PH[ph].tech);
   });
   cv.addEventListener('pointermove', e => {
     const r = cv.getBoundingClientRect(), x = (e.clientX - r.left - geo.ox) / geo.sc, y = (e.clientY - r.top - geo.oy) / geo.sc;
-    hover = B.findIndex(b => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h); userHover = hover >= 0;
+    hover = hit(x, y); userHover = hover >= 0;
     if (userHover) showTip(hover, e.clientX - r.left, e.clientY - r.top);
   });
   cv.addEventListener('pointerleave', () => { hover = -1; userHover = false; tip.hidden = true; });
 })();
 
-/* ---------- RSVQA: grounded answers on a synthetic tile ---------- */
+/* ---------- RSVQA: grounded answers on a real satellite image of Queen's University Belfast ---------- */
 (() => {
-  const cv = $('#vqCanvas'), ans = $('#vqAns'), N = 512; const off = document.createElement('canvas'); off.width = off.height = N; const o = off.getContext('2d');
-  let seed = 21, S = {}, boxes = [], boxT = 0, busy = false;
-  function far(p, list, d){ return list.every(q => Math.hypot(p.x - q.x, p.y - q.y) > d); }
-  function gen(){
-    const R = rng(seed); S = { buildings: [], cars: [], trees: [] };
-    // fields patchwork
-    const fc = ['#5f7a3a', '#6e8a45', '#8a8a4f', '#7b6a45', '#4f6b35', '#9a8b5c', '#69804a'];
-    for (let y = 0; y < N;) { const hh = 50 + R() * 70; for (let x = 0; x < N;) { const ww = 60 + R() * 90; o.fillStyle = fc[(R() * fc.length) | 0]; o.fillRect(x, y, ww + 1, hh + 1);
-      o.strokeStyle = 'rgba(0,0,0,.08)'; for (let k = 0; k < ww; k += 5) { o.beginPath(); o.moveTo(x + k, y); o.lineTo(x + k, y + hh); o.stroke(); } x += ww; } y += hh; }
-    // river
-    const ry0 = 70 + R() * 120, ry1 = 300 + R() * 150; const c1 = { x: 170, y: ry0 + 160 * R() }, c2 = { x: 340, y: ry1 - 160 * R() };
-    S.river = []; for (let t = 0; t <= 1; t += .01) { const u = 1 - t; S.river.push({ x: u * u * u * -10 + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t * t * t * (N + 10), y: u * u * u * ry0 + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t * t * t * ry1 }); }
-    const strokeRiver = (wd, col) => { o.strokeStyle = col; o.lineWidth = wd; o.lineCap = 'round'; o.beginPath(); S.river.forEach((p, i) => i ? o.lineTo(p.x, p.y) : o.moveTo(p.x, p.y)); o.stroke(); };
-    strokeRiver(30, '#7c8a5c'); strokeRiver(22, '#2c5872'); strokeRiver(8, 'rgba(120,170,200,.25)');
-    const nearRiver = (x, y, d) => S.river.some(p => Math.hypot(p.x - x, p.y - y) < d);
-    // road geometry (north-south, crosses the river on a bridge)
-    const rx = 90 + R() * 90; S.road = rx;
-    const roadX = y => { const t = y / N, u = 1 - t; return u * u * u * (rx - 20) + 3 * u * u * t * (rx + 20) + 3 * u * t * t * (rx - 20) + t * t * t * (rx + 10); };
-    // lake, with a sports field on its west side clear of river and road
-    const sf = { w: 56, h: 34 };
-    for (let tries = 0; tries < 400; tries++) {
-      const L = { x: 330 + R() * 130, y: 60 + R() * 390, rx: 38 + R() * 20, ry: 26 + R() * 14 };
-      const fx = L.x - L.rx - 22 - sf.w, fy = L.y - sf.h / 2;
-      if (nearRiver(L.x, L.y, L.rx + 36) || nearRiver(fx + sf.w / 2, fy + sf.h / 2, 48) || Math.abs(roadX(fy + sf.h / 2) - (fx + sf.w / 2)) < 58) continue;
-      S.lake = L; sf.x = fx; sf.y = fy; break;
-    }
-    if (!S.lake) { S.lake = { x: 440, y: 470, rx: 40, ry: 26 }; sf.x = S.lake.x - S.lake.rx - 22 - sf.w; sf.y = S.lake.y - sf.h / 2; }
-    const Lk = S.lake; o.fillStyle = '#7c8a5c'; o.beginPath(); o.ellipse(Lk.x, Lk.y, Lk.rx + 5, Lk.ry + 5, 0, 0, 7); o.fill(); o.fillStyle = '#24506a'; o.beginPath(); o.ellipse(Lk.x, Lk.y, Lk.rx, Lk.ry, 0, 0, 7); o.fill();
-    o.strokeStyle = '#b9b2a2'; o.lineWidth = 12; o.beginPath(); o.moveTo(rx - 20, -5); o.bezierCurveTo(rx + 20, 170, rx - 20, 340, rx + 10, N + 5); o.stroke();
-    o.strokeStyle = 'rgba(255,255,255,.5)'; o.lineWidth = 1; o.setLineDash([6, 6]); o.stroke(); o.setLineDash([]);
-    S.field = sf; o.fillStyle = '#3f8f45'; o.fillRect(sf.x, sf.y, sf.w, sf.h); o.strokeStyle = 'rgba(255,255,255,.85)'; o.lineWidth = 1.2; o.strokeRect(sf.x + 3, sf.y + 3, sf.w - 6, sf.h - 6);
-    o.beginPath(); o.moveTo(sf.x + sf.w / 2, sf.y + 3); o.lineTo(sf.x + sf.w / 2, sf.y + sf.h - 3); o.stroke(); o.beginPath(); o.arc(sf.x + sf.w / 2, sf.y + sf.h / 2, 6, 0, 7); o.stroke();
-    // buildings along the road
-    const nb = 5 + ((R() * 5) | 0); let guard = 0;
-    while (S.buildings.length < nb && guard++ < 600) {
-      const y = 30 + R() * (N - 60), side = R() < .5 ? -1 : 1, bw = 14 + R() * 16, bh = 12 + R() * 14; const x = roadX(y) + side * (14 + R() * 26) - (side < 0 ? bw : 0);
-      const b = { x, y, w: bw, h: bh }; const cx = x + bw / 2, cy = y + bh / 2;
-      if (x < 4 || x + bw > N - 4 || nearRiver(cx, cy, 34) || Math.hypot((cx - Lk.x) / (Lk.rx + 22), (cy - Lk.y) / (Lk.ry + 22)) < 1) continue;
-      if (!(cx > sf.x + sf.w + 8 || cx < sf.x - 8 || cy > sf.y + sf.h + 8 || cy < sf.y - 8)) continue;
-      if (S.buildings.some(q => x < q.x + q.w + 6 && x + bw + 6 > q.x && y < q.y + q.h + 6 && y + bh + 6 > q.y)) continue;
-      S.buildings.push(b);
-    }
-    S.buildings.forEach(b => { o.fillStyle = 'rgba(0,0,0,.35)'; o.fillRect(b.x + 4, b.y + 4, b.w, b.h); o.fillStyle = R() < .5 ? '#b0553c' : '#c9c4b8'; o.fillRect(b.x, b.y, b.w, b.h); o.fillStyle = 'rgba(255,255,255,.15)'; o.fillRect(b.x, b.y, b.w, b.h / 2); });
-    // vehicles on road
-    const nc = 2 + ((R() * 4) | 0);
-    for (let k = 0; k < nc; k++) { const y = 20 + (k + R() * .6) * (N - 40) / nc; if (nearRiver(roadX(y), y, 24)) continue; const c = { x: roadX(y) - 3 + (R() < .5 ? -3 : 3), y, w: 6, h: 10 }; S.cars.push(c);
-      o.fillStyle = ['#e8e8e8', '#d23c3c', '#2f4f9a', '#1b1b1b'][(R() * 4) | 0]; o.fillRect(c.x, c.y, c.w, c.h); }
-    // tree clumps
-    for (let k = 0, g2 = 0; k < 9 && g2 < 300; g2++) { const p = { x: 20 + R() * (N - 40), y: 20 + R() * (N - 40) };
-      if (nearRiver(p.x, p.y, 26) || Math.abs(roadX(p.y) - p.x) < 24 || Math.hypot((p.x - Lk.x) / (Lk.rx + 16), (p.y - Lk.y) / (Lk.ry + 16)) < 1 || !far(p, S.buildings.map(b => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 })), 34) || !far(p, S.trees, 40)) continue;
-      if (p.x > sf.x - 14 && p.x < sf.x + sf.w + 14 && p.y > sf.y - 14 && p.y < sf.y + sf.h + 14) continue;
-      const cl = { x: p.x, y: p.y, r: 9 + R() * 8 }; S.trees.push(cl); k++;
-      for (let m = 0; m < 9; m++) { const a = R() * 7, d = R() * cl.r; o.fillStyle = 'rgba(0,0,0,.25)'; o.beginPath(); o.arc(p.x + Math.cos(a) * d + 2, p.y + Math.sin(a) * d + 2, 4 + R() * 3, 0, 7); o.fill(); o.fillStyle = ['#244a26', '#2e5a2c', '#1f3f22'][m % 3]; o.beginPath(); o.arc(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 4 + R() * 3, 0, 7); o.fill(); } }
-    // land-use by pixel class
-    const d = o.getImageData(0, 0, N, N).data; let veg = 0, water = 0, built = 0;
-    for (let i = 0; i < d.length; i += 16) { const r = d[i], g = d[i + 1], b = d[i + 2]; if (b > r + 10 && b >= g) water++; else if (g >= r && g > b) veg++; else if (Math.abs(r - g) < 14 && Math.abs(g - b) < 22 && r > 150) built++; else veg++; }
-    const tot = d.length / 16; S.lu = { veg: veg / tot, water: water / tot, built: built / tot };
-    // haze/vignette for a sensor look
-    const gr = o.createRadialGradient(N / 2, N / 2, N * .3, N / 2, N / 2, N * .75); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.28)'); o.fillStyle = gr; o.fillRect(0, 0, N, N);
-    boxes = [];
-  }
-  function draw(t){
-    const { ctx, w } = fit(cv); const s = w / N; ctx.drawImage(off, 0, 0, w, w);
-    ctx.font = '500 10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillText(`TILE ${seed.toString(16).toUpperCase().padStart(4, '0')} · 0.5 m GSD · RGB`, 8, 14);
+  const cv = $('#vqCanvas'), N = 768, img = new Image(); let ready = false, boxes = [], boxT = 0;
+  img.onload = () => { ready = true; redrawAll(); }; img.src = 'assets/qub-campus.webp';
+  // landmark boxes in the 768 px image, positions checked against OpenStreetMap
+  const A = { lanyon: [239, 262, 506, 500], quad: [318, 330, 496, 445], lawnA: [150, 156, 248, 324], lawnB: [143, 358, 220, 444],
+    palm: [358, 535, 556, 625], park: [558, 288, 768, 448], botanic: [118, 560, 768, 768] };
+  const bx = (k, label, col = '#ffb547') => { const [x0, y0, x1, y1] = A[k]; return { x: x0, y: y0, w: x1 - x0, h: y1 - y0, label, col }; };
+  const QA = [
+    { q: 'Which building has a courtyard in the middle?', a: "The Lanyon Building, Queen's main building. Its lawn courtyard is the Quad.", bx: [bx('lanyon', 'Lanyon Building'), bx('quad', 'the Quad', '#3ee0a1')] },
+    { q: 'How many lawns are in front of the Lanyon Building?', a: 'Two, one on each side of the path in from University Road.', bx: [bx('lawnA', 'lawn 1', '#3ee0a1'), bx('lawnB', 'lawn 2', '#3ee0a1')] },
+    { q: 'Is there a glasshouse in this image?', a: 'Yes. The Victorian Palm House, on the edge of Botanic Gardens.', bx: [bx('palm', 'Palm House', '#46d4ff')] },
+    { q: 'Where are most of the cars parked?', a: 'In the large car park on the east side of the image.', bx: [bx('park', 'car park')] },
+    { q: 'What lies south of the campus?', a: 'Botanic Gardens: trees, paths and an open lawn.', bx: [bx('botanic', 'Botanic Gardens', '#3ee0a1')] },
+  ];
+  function draw(){
+    const { ctx, w } = fit(cv); const s = w / N;
+    if (!ready) { ctx.fillStyle = '#0b111d'; ctx.fillRect(0, 0, w, w); return; }
+    ctx.drawImage(img, 0, 0, w, w);
+    ctx.font = '500 10px "JetBrains Mono", monospace';
+    const head = w < 380 ? "QUEEN'S UNIVERSITY BELFAST" : "QUEEN'S UNIVERSITY BELFAST · 54.584° N 5.935° W";
+    ctx.fillStyle = 'rgba(7,16,24,.7)'; ctx.fillRect(4, 4, ctx.measureText(head).width + 10, 16); ctx.fillStyle = '#e8eef8'; ctx.fillText(head, 9, 15);
     const k = Math.min(1, (performance.now() - boxT) / 650);
     boxes.forEach((b, i) => {
-      const kk = Math.max(0, Math.min(1, k * 1.6 - i * .08)); if (!kk) return;
-      const x = b.x * s, y = b.y * s, bw = b.w * s, bh = b.h * s; ctx.strokeStyle = b.col; ctx.lineWidth = 2;
-      ctx.globalAlpha = kk; ctx.strokeRect(x - (1 - kk) * 8, y - (1 - kk) * 8, bw + (1 - kk) * 16, bh + (1 - kk) * 16);
-      if (b.label) { const tw = ctx.measureText(b.label).width + 8; ctx.fillStyle = b.col; ctx.fillRect(x - 1, y - 15, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(b.label, x + 3, y - 4); }
+      const kk = reduce ? 1 : Math.max(0, Math.min(1, k * 1.6 - i * .1)); if (!kk) return;
+      const x = b.x * s, y = b.y * s, bw = b.w * s, bh = b.h * s; ctx.strokeStyle = b.col; ctx.lineWidth = 2.5;
+      ctx.globalAlpha = kk; ctx.strokeRect(x - (1 - kk) * 8 + 1, y - (1 - kk) * 8 + 1, bw + (1 - kk) * 16 - 2, bh + (1 - kk) * 16 - 2);
+      const tw = ctx.measureText(b.label).width + 8, ly = y > 18 ? y - 15 : y + 2; ctx.fillStyle = b.col; ctx.fillRect(x + 1, ly, tw, 14); ctx.fillStyle = '#071018'; ctx.fillText(b.label, x + 5, ly + 11);
       ctx.globalAlpha = 1;
     });
+    ctx.font = '400 9px "JetBrains Mono", monospace'; const at = 'Imagery © Esri, Maxar, Earthstar Geographics', aw = ctx.measureText(at).width;
+    ctx.fillStyle = 'rgba(7,16,24,.65)'; ctx.fillRect(w - aw - 10, w - 15, aw + 10, 15); ctx.fillStyle = 'rgba(232,238,248,.85)'; ctx.fillText(at, w - aw - 5, w - 4);
   }
-  const bb = (o2, label, col = '#ffb547') => ({ x: o2.x, y: o2.y, w: o2.w, h: o2.h, label, col });
-  function intent(q){
-    q = q.toLowerCase();
-    const count = /how many|count|number of/.test(q);
-    if (/build|house|roof|structure/.test(q)) return 'buildings';
-    if (/car|vehicle|truck|traffic/.test(q)) return 'cars';
-    if (/left of|west of|beside the lake|next to the lake/.test(q)) return 'leftlake';
-    if (/water|river|lake|pond/.test(q)) return 'water';
-    if (/tree|forest|wood|vegetation/.test(q)) return 'trees';
-    if (/land ?use|land cover|main use|dominant|agricultur|crop|farm/.test(q)) return 'landuse';
-    if (/road|street|highway/.test(q)) return 'road';
-    if (/field|sport|pitch|stadium/.test(q)) return 'field';
-    return count ? 'unknown-count' : 'unknown';
-  }
-  const QS = ['How many buildings are there?', 'Is there any water in the image?', 'What is to the left of the lake?', 'How many vehicles are on the road?', 'Are there any trees?'];
   const say = story('#vqSteps', '#vqCap');
-  function answer(q){
-    const it = intent(q), L = S.lake; let a = '', bx = [];
-    const box = (x, y, w2, h2, l, c) => ({ x, y, w: w2, h: h2, label: l, col: c || '#ffb547' });
-    if (it === 'buildings') { a = `${S.buildings.length} buildings, clustered along the road.`; bx = S.buildings.map(b => bb({ x: b.x - 2, y: b.y - 2, w: b.w + 4, h: b.h + 4 }, 'building')); }
-    else if (it === 'cars') { a = S.cars.length ? `${S.cars.length} vehicle${S.cars.length > 1 ? 's' : ''} on the road.` : 'No vehicles are visible.'; bx = S.cars.map(c => bb({ x: c.x - 3, y: c.y - 3, w: c.w + 6, h: c.h + 6 }, 'vehicle')); }
-    else if (it === 'water') { const ys = S.river.map(p => p.y); a = 'Yes. A river crosses the tile from west to east, and there is a lake.'; bx = [box(0, Math.min(...ys) - 14, N, Math.max(...ys) - Math.min(...ys) + 28, 'river', '#46d4ff'), box(L.x - L.rx - 6, L.y - L.ry - 6, (L.rx + 6) * 2, (L.ry + 6) * 2, 'lake', '#46d4ff')]; }
-    else if (it === 'leftlake') { a = 'A sports field, directly west of the lake.'; bx = [bb({ x: S.field.x - 3, y: S.field.y - 3, w: S.field.w + 6, h: S.field.h + 6 }, 'sports field'), box(L.x - L.rx - 6, L.y - L.ry - 6, (L.rx + 6) * 2, (L.ry + 6) * 2, 'lake', '#46d4ff')]; }
-    else if (it === 'trees') { a = `Yes. ${S.trees.length} clusters of trees, scattered between the fields.`; bx = S.trees.map(c => box(c.x - c.r - 6, c.y - c.r - 6, (c.r + 6) * 2, (c.r + 6) * 2, 'trees', '#3ee0a1')); }
-    else { a = `Agricultural. Cropland and vegetation cover about ${Math.round(S.lu.veg * 100)}% of the tile.`; }
-    return { a, bx };
-  }
   // timeline per question: see image → read question → answer → show evidence → hold
-  const T = { see: 1.1, ask: 1.6, ans: 1.6, ev: 1.2, hold: 3.2 };
-  let qi = 0, qt = 0, cur = null;
+  const T = { see: 1.1, ask: 1.6, ans: 1.6, ev: 1.2, hold: 3.4 };
+  let qi = 0, qt = 0;
   function stage(){ let acc = 0; for (const k of ['see', 'ask', 'ans', 'ev', 'hold']) { if (qt < acc + T[k]) return [k, (qt - acc) / T[k]]; acc += T[k]; } return ['next', 1]; }
-  gen();
   addLoop(cv, (t, dt) => {
-    if (!cur) cur = { q: QS[qi], ...answer(QS[qi]) };
     qt += dt;
     let [st, k] = stage();
-    if (st === 'next') { qt = 0; qi++; if (qi >= QS.length) { qi = 0; seed++; gen(); } cur = { q: QS[qi], ...answer(QS[qi]) }; boxes = []; [st, k] = stage(); }
+    if (st === 'next') { qt = 0; qi = (qi + 1) % QA.length; boxes = []; [st, k] = stage(); }
     if (reduce) { st = 'hold'; k = 1; }
-    if (st === 'ev' && boxes !== cur.bx) { boxes = cur.bx; boxT = performance.now(); }
+    const cur = QA[qi];
+    if ((st === 'ev' || st === 'hold') && boxes !== cur.bx) { boxes = cur.bx; boxT = performance.now(); }
     if (st === 'see' || st === 'ask' || st === 'ans') boxes = [];
-    draw(t);
-    $('#vqN').textContent = `question ${qi + 1} of ${QS.length}`;
+    draw();
+    $('#vqN').textContent = `question ${qi + 1} of ${QA.length} · real image`;
     const qTxt = st === 'see' ? '' : st === 'ask' ? cur.q.slice(0, Math.ceil(cur.q.length * Math.min(1, k * 1.3))) : cur.q;
     const aTxt = st === 'ans' ? cur.a.slice(0, Math.ceil(cur.a.length * Math.min(1, k * 1.2))) : st === 'ev' || st === 'hold' ? cur.a : '';
     const idx = { see: 0, ask: 1, ans: 2, ev: 3, hold: 4 }[st];
-    const tech = ['Qwen2.5-VL vision encoder reads the satellite image', 'the question is read alongside the image', 'answer from Qwen2.5-VL with a QLoRA adapter', `Grounding DINO draws ${cur.bx.length || 'no'} box${cur.bx.length === 1 ? '' : 'es'} on the evidence`, cur.bx.length ? `Grounding DINO · ${cur.bx.length} box${cur.bx.length === 1 ? '' : 'es'}` : 'answer from the whole tile'][idx];
+    const n = cur.bx.length, tech = ['Qwen2.5-VL vision encoder reads the satellite image', 'the question is read alongside the image', 'answer from Qwen2.5-VL with a QLoRA adapter', `Grounding DINO draws ${n} box${n === 1 ? '' : 'es'} on the evidence`, `Grounding DINO · ${n} box${n === 1 ? '' : 'es'}`][idx];
     say(stepStates(4, idx), `Q: ${qTxt || (st === 'see' ? 'looking at the image…' : '')}`, aTxt ? `A: ${aTxt}` : '&nbsp;', tech, 'qa-q');
   });
 })();
