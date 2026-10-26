@@ -1094,6 +1094,11 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
   const KZ = .55, PAD = 46; // oblique view: each metre of height lifts a roof KZ map units
   const order = () => B.map((_, i) => i).sort((a, b) => (B[a].y + B[a].h) - (B[b].y + B[b].h)); // back to front
   const hit = (x, y) => { const o = order(); for (let k = o.length - 1; k >= 0; k--) { const b = B[o[k]]; if (x >= b.x && x <= b.x + b.w && y >= b.y - b.z * KZ && y <= b.y + b.h) return o[k]; } return -1; };
+  // does the part of taller building o above height z cast a shadow that can reach building b?
+  const reaches = (o, b, z, s) => { const r = o.z - z; if (r <= 0) return false; const dx = s.dx * r, dy = s.dy * r;
+    return Math.min(o.x, o.x + dx) <= b.x + b.w && Math.max(o.x + o.w, o.x + o.w + dx) >= b.x && Math.min(o.y, o.y + dy) <= b.y + b.h && Math.max(o.y + o.h, o.y + o.h + dy) >= b.y; };
+  // is the point (x, y) at height z in shadow of o? step towards the sun until we leave o's height
+  const inShadow = (o, x, y, z, s) => { const r = o.z - z; if (r <= 0) return false; for (let t = 0; t <= 1; t += .1) { const qx = x - s.dx * r * t, qy = y - s.dy * r * t; if (qx >= o.x && qx <= o.x + o.w && qy >= o.y && qy <= o.y + o.h) return true; } return false; };
   const rgb = (c, k = 1) => `rgb(${c.map(v => Math.round(v * k))})`;
   function heatRGB(v){ const st = [[27,42,107],[122,44,143],[224,87,58],[255,181,71],[255,243,176]]; v = Math.max(0, Math.min(1, v)) * (st.length - 1); const i = Math.min(st.length - 2, Math.floor(v)), f = v - i; return st[i].map((x, k) => Math.round(x + (st[i + 1][k] - x) * f)); }
   function heatCol(v){ const st = [[27,42,107],[122,44,143],[224,87,58],[255,181,71],[255,243,176]]; v = Math.max(0, Math.min(1, v)) * (st.length - 1); const i = Math.min(st.length - 2, Math.floor(v)), f = v - i; const c = st[i].map((x, k) => Math.round(x + (st[i + 1][k] - x) * f)); return `rgb(${c})`; }
@@ -1120,6 +1125,12 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
     order().forEach(i => {
       const b = B[i], lift = b.z * KZ, g = b.tone | 0, base = heat ? heatRGB(b.score) : [g, g - 6, g - 14];
       ctx.fillStyle = rgb(base, .5); ctx.fillRect(b.x, b.y + b.h - lift, b.w, lift);
+      // shadows from taller buildings to the south falling on this south wall, sampled in 2 m cells
+      const casters = B.filter(o => o !== b && o.z > 0 && reaches(o, b, 0, s));
+      if (casters.length) { ctx.fillStyle = 'rgba(8,10,20,.55)';
+        for (let zz = 1; zz < b.z; zz += 2) for (let xx = b.x; xx < b.x + b.w; xx += 2) {
+          if (casters.some(o => inShadow(o, Math.min(xx + 1, b.x + b.w), b.y + b.h + .3, zz, s))) ctx.fillRect(xx, b.y + b.h - (zz + 1) * KZ, Math.min(2, b.x + b.w - xx), 2 * KZ + .2);
+        } }
       ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = .35; ctx.beginPath();
       for (let f = 3.5; f < b.z; f += 3.5) { const yy = b.y + b.h - f * KZ; ctx.moveTo(b.x, yy); ctx.lineTo(b.x + b.w, yy); }
       ctx.stroke();
@@ -1127,8 +1138,7 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
       // shadows from taller neighbours land on this roof: the part of each taller box above this roof, swept along the sun direction
       ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y - lift, b.w, b.h); ctx.clip(); ctx.translate(0, -lift); ctx.fillStyle = 'rgba(8,10,20,.5)';
       B.forEach(o => {
-        if (o.z <= b.z) return; const r = o.z - b.z, dx = s.dx * r, dy = s.dy * r;
-        if (Math.max(o.x, o.x + dx) > b.x + b.w + 1 || Math.min(o.x + o.w, o.x + o.w + dx) < b.x - 1 || Math.max(o.y, o.y + dy) > b.y + b.h + 1 || Math.min(o.y + o.h, o.y + o.h + dy) < b.y - 1) return;
+        if (o === b || !reaches(o, b, b.z, s)) return; const r = o.z - b.z, dx = s.dx * r, dy = s.dy * r;
         const c = [[o.x, o.y], [o.x + o.w, o.y], [o.x + o.w, o.y + o.h], [o.x, o.y + o.h]];
         for (let k = 0; k < 4; k++) { const p = c[k], q = c[(k + 1) % 4]; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.lineTo(q[0] + dx, q[1] + dy); ctx.lineTo(p[0] + dx, p[1] + dy); ctx.fill(); }
         ctx.fillRect(o.x + dx, o.y + dy, o.w, o.h);
