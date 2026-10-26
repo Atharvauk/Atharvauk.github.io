@@ -61,7 +61,7 @@ p{margin:0}
 .nav .wrap{display:flex;align-items:center;gap:16px;height:60px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
 .brand .mark{--s:7px;display:grid;place-items:center;width:34px;height:34px;font:700 14px var(--f-display);color:var(--cyan);letter-spacing:.04em}
-.brand .nm{font:500 var(--t-sm) var(--f-mono);color:var(--fg)}
+.brand .nm{font:600 var(--t-sm) var(--f-mono);letter-spacing:.1em;color:var(--fg)}
 .brand .nm span{color:var(--faint)}
 .links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}
 .links::-webkit-scrollbar{display:none}
@@ -352,7 +352,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Atharva Kalase, back to top">
       <span class="mark bracket">AK</span>
-      <span class="nm">atharva<span>.</span>kalase</span>
+      <span class="nm">ATHARVA KALASE</span>
     </a>
     <nav class="links" aria-label="Sections">
       <a href="#about">about</a>
@@ -1115,6 +1115,16 @@ const stepStates = (n, cur, extra = {}) => Array.from({ length: n }, (_, i) => e
       for (let f = 3.5; f < b.z; f += 3.5) { const yy = b.y + b.h - f * KZ; ctx.moveTo(b.x, yy); ctx.lineTo(b.x + b.w, yy); }
       ctx.stroke();
       ctx.fillStyle = rgb(base); ctx.fillRect(b.x, b.y - lift, b.w, b.h);
+      // shadows from taller neighbours land on this roof: the part of each taller box above this roof, swept along the sun direction
+      ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y - lift, b.w, b.h); ctx.clip(); ctx.translate(0, -lift); ctx.fillStyle = 'rgba(8,10,20,.5)';
+      B.forEach(o => {
+        if (o.z <= b.z) return; const r = o.z - b.z, dx = s.dx * r, dy = s.dy * r;
+        if (Math.max(o.x, o.x + dx) > b.x + b.w + 1 || Math.min(o.x + o.w, o.x + o.w + dx) < b.x - 1 || Math.max(o.y, o.y + dy) > b.y + b.h + 1 || Math.min(o.y + o.h, o.y + o.h + dy) < b.y - 1) return;
+        const c = [[o.x, o.y], [o.x + o.w, o.y], [o.x + o.w, o.y + o.h], [o.x, o.y + o.h]];
+        for (let k = 0; k < 4; k++) { const p = c[k], q = c[(k + 1) % 4]; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.lineTo(q[0] + dx, q[1] + dy); ctx.lineTo(p[0] + dx, p[1] + dy); ctx.fill(); }
+        ctx.fillRect(o.x + dx, o.y + dy, o.w, o.h);
+      });
+      ctx.restore();
       if (!heat) { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.fillRect(b.x + b.w * .1, b.y - lift + b.h * .1, b.w * .8, 1.2); if (b.tank) { ctx.fillStyle = '#20232b'; ctx.beginPath(); ctx.arc(b.x + b.w * .75, b.y - lift + b.h * .3, 2.2, 0, 7); ctx.fill(); } }
       ctx.strokeStyle = i === hl ? '#46d4ff' : 'rgba(0,0,0,.35)'; ctx.lineWidth = i === hl ? 3 / sc : .6; ctx.strokeRect(b.x, b.y - lift, b.w, b.h + lift);
     });
